@@ -23,7 +23,7 @@ Findings from a full read of the original 12 KB / ~250-line repository
 |---|---|---|---|
 | 10 | Character-based chunking at fixed 1000/200, ignoring sentence and paragraph boundaries | Cuts sentences mid-word, degrades embeddings | **Fixed** — boundary-aware recursive splitter |
 | 11 | No chunk metadata (page, doc id, offsets) | Citations impossible | **Fixed** — every `Chunk` carries `doc_id`, `page`, `ordinal`, `chunk_id` |
-| 12 | Fixed `k=8`, no score threshold | Irrelevant context injected when the document lacks the answer → hallucination | **Fixed** — configurable `k`, abstention on calibrated confidence |
+| 12 | Fixed `k=8`, no score threshold | Irrelevant context injected when the document lacks the answer → hallucination | **Fixed** — configurable `k`, abstention on a thresholded confidence score |
 | 13 | No reranking, no lexical retrieval | Weak recall on exact terms, identifiers, numbers | **Fixed** — BM25 + dense with reciprocal rank fusion; optional cross-encoder |
 | 14 | PyPDF2 only; scanned PDFs silently rejected with "not readable" | Large class of real documents unusable | **Partial** — clearer error message; OCR still absent |
 | 15 | No citations at all | Answers unauditable | **Fixed** — span offset → passage → page |

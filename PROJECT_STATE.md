@@ -1,9 +1,9 @@
 # PROJECT_STATE.md
 
-**Project:** Vistaar — citation-grounded RAG with calibrated abstention
-**Repository:** `/Users/kishansingh/Documents/Default Project` (git repo, branch `main`, **no commits yet**)
-**State captured:** 2026-10-27, 21:15 local
-**Status:** working system + completed evaluation + paper draft v1.0. Nothing is running.
+**Project:** Vistaar — citation-grounded RAG with thresholded abstention
+**Repository:** `/Users/kishansingh/Documents/STUDY/Research Paper/Vistaar` (git repo, branch `main`; milestone-1 commit on top of the initial import)
+**State captured:** 2026-10-27, 21:15 local (Milestone 1 reconciliation applied)
+**Status:** working system + completed evaluation + paper draft v1.1. Nothing is running.
 
 ---
 
@@ -95,7 +95,9 @@ Output: `results/summary.json`, `results/table.md`, `results/records.jsonl`.
 
 **Run 2 — abstention sweep, main run** (`eval/sweep.py`, config E, n=127):
 AUC **0.6959**. Selective F1 rises from **0.019 at 100% coverage → 0.083 at 15.0%
-coverage** (threshold 0.50), a 4.4× gain. Max balanced accuracy 0.603 at threshold 0.20.
+coverage** (threshold 0.50), a 4.4× gain. Max balanced accuracy **0.639 at
+threshold 0.10** (coverage 0.268, selective F1 0.049). The `best` field in
+`sweep_E.json` maximises selective F1, not balanced accuracy.
 Output: `results/sweep_E.json`, `results/sweep_E.md`.
 
 **Run 3 — class-balanced abstention run** (`--papers 281 --only E --balanced`):
@@ -110,11 +112,13 @@ missed-unanswerable 0.10, latency 0.86 s.
 **Balanced sweep:** AUC **0.6172** (n=231). Peak **balanced accuracy 0.566 at
 threshold 0.10** (coverage 0.281, selective F1 0.040). Best selective F1 **0.055 at
 threshold 0.40** (coverage 0.156, balanced accuracy 0.515). At full coverage,
-selective F1 = 0.0385.
+selective F1 = 0.0385. The default threshold 0.50 yields selective F1 0.0373,
+slightly below full coverage, and balanced accuracy 0.511.
 
-Alternative abstention signals measured offline from the same records (n=231):
-retrieval score alone AUC 0.583; `confidence + z(retrieval)` AUC 0.583. **No
-combination beat confidence alone (0.617).**
+Alternative abstention signals measured offline from the same records (n=231),
+reproduced by `python -m eval.abstention_signals`: retrieval score alone AUC
+0.5830; `confidence + z(retrieval)` AUC 0.5832. **No combination beat confidence
+alone (0.6172).** Output: `results/balanced/signals.json`.
 
 **Verification — unit tests:** `python -m pytest tests/ -q` → **12 passed**
 (env whitespace regression, namespace isolation, chunking bounds, RRF dedupe,
@@ -224,11 +228,12 @@ substring matching. This is documented in the paper as a limitation.
 - **F1 0.04–0.08 is a metric mismatch, not a broken system.** QASPER gold answers are
   abstractive (`multilingual NMT (MNMT) BIBREF19`); the reader is extractive and
   returns the shorter span (`multilingual NMT approaches`). The same system reaches
-  0.696 AUC and a 4.4× selective-F1 gain.
+  0.696 AUC and a 4.4× selective-F1 gain on the natural sample, but only 0.617 AUC
+  and a 1.4× gain on the class-balanced slice — the latter is the primary result.
 - **Abstention is real but weak, and the natural-sample AUC is optimistic.** With 5
   negatives, AUC = 0.696; on 60 balanced negatives, AUC = **0.617** and peak balanced
-  accuracy is only **0.566**. The paper must report both — the 0.696 should not be
-  presented alone.
+  accuracy is only **0.566**. The paper reports both, with 0.696 labelled as an
+  optimistic small-sample estimate; the 0.696 is not presented alone.
 - **A fixed threshold of 0.5 over-abstains** (0.844) because the answerable prior is
   96%; the threshold has to be selected from measured balanced accuracy, not assumed.
 
@@ -272,6 +277,7 @@ The repository started empty (`.git` only, zero commits), so every file below is
 | `eval/metrics.py` | EM, token F1, `evidence_coverage`, citation P/R, `bootstrap_ci`, `paired_bootstrap_p` (null-centred), `summarize`, `to_markdown` |
 | `eval/run_eval.py` | matrix runner: `--papers --limit --workers --out --only --balanced`; per-config JSONL cache; `READER_PASSAGES = 4` |
 | `eval/sweep.py` | threshold sweep → risk–coverage curve, AUC, balanced accuracy, selective F1 |
+| `eval/abstention_signals.py` | offline comparison of confidence, retrieval, and combined abstention signals |
 
 ### Tests, data, results
 | File | Purpose |
@@ -283,12 +289,13 @@ The repository started empty (`.git` only, zero commits), so every file below is
 | `results/sweep_E.json`, `results/sweep_E.md` | main-run abstention sweep (AUC 0.6959) |
 | `results/balanced/summary.json`, `table.md`, `records.jsonl` | balanced run outputs |
 | `results/balanced/sweep_E.json`, `sweep_E.md` | balanced sweep (AUC 0.6172) |
+| `results/balanced/signals.json` | signal comparison (confidence 0.6172 vs retrieval 0.5830 vs combined 0.5832) |
 | `results/cache/{A,B,C,D,E}.jsonl` | per-question resume cache (gitignored) |
 
 ### Documentation and delivery
 | File | Purpose |
 |---|---|
-| `paper/PAPER.md` | full draft v1.0 with measured numbers and significance tests (does **not** yet include the balanced run) |
+| `paper/PAPER.md` | full draft v1.1: balanced abstention as primary, natural-sample AUC labelled optimistic, verified signal comparison |
 | `docs/AUDIT.md` | 23 defects in the original codebase with fixed/open status |
 | `README.md` | usage, architecture, API, metrics definitions, results table, limitations |
 | `app.py` | ASGI entrypoint (`uvicorn app:app`) |
@@ -306,20 +313,31 @@ The repository started empty (`.git` only, zero commits), so every file below is
 
 ---
 
-## 4. Next Milestones
+## 4. Milestones
 
-### Milestone 1 — Reconcile the paper with the balanced abstention result, then commit
+### Milestone 1 — Reconcile the paper with the balanced abstention result, then commit — ✅ completed
 
-`paper/PAPER.md` §5.4 currently reports **only** AUC = 0.696 (5 negatives) and the
-4.4× selective-F1 gain. The balanced run (AUC 0.617, peak balanced accuracy 0.566,
-n=231) must be added as the primary abstention result, with 0.696 explicitly labelled
-as an optimistic small-sample estimate. Add the three-way comparison table
-(confidence 0.617 vs retrieval 0.583 vs combined 0.583) and soften the abstract claim
-from "substantially better than chance" to "modestly above chance". Regenerate every
-number in §5 directly from `results/summary.json` and
-`results/balanced/sweep_E.json`, extend §7 Limitations accordingly, and then make the
-first commit (`git add -A && git commit`) — nothing is committed yet, so this also
-protects the work.
+Completed in this milestone:
+
+- `paper/PAPER.md` §5.4 now reports the class-balanced run (AUC 0.6172, n=231,
+  60 unanswerable) as the **primary** result, with the natural-prevalence AUC
+  0.696 explicitly labelled an optimistic small-sample estimate.
+- Added the verified three-way signal comparison: confidence 0.6172, retrieval
+  0.5830, combined 0.5832. Reproduced by `eval/abstention_signals.py` and stored
+  in `results/balanced/signals.json`.
+- Corrected the natural-run balanced-accuracy values (0.639 at threshold 0.10,
+  0.594 at 0.30) directly from `results/sweep_E.json`; the earlier "0.603 at
+  0.20" claim was wrong.
+- Softened the abstract claim to "modestly above chance"; changed the title and
+  tagline from "Calibrated Abstention" to "Thresholded Abstention", since no
+  probability-calibration or ECE analysis was run.
+- Extended §7 Limitations with weak abstention, non-independence, post-hoc
+  threshold selection, and the first-gold vs best-over-gold selective-F1 caveat.
+- Applied the same reconciled numbers to `README.md` and this file.
+- Created the milestone commit:
+  `feat(milestone-1): reconcile paper and readme with balanced abstention metrics and signal verification`.
+
+Milestone 2 remains next.
 
 ### Milestone 2 — Add the legal/contract domain (CUAD), or scope the paper explicitly
 
@@ -348,12 +366,13 @@ resolves from scratch.
 ## 5. How to resume
 
 ```bash
-cd "/Users/kishansingh/Documents/Default Project"
+cd "/Users/kishansingh/Documents/STUDY/Research Paper/Vistaar"
 
 ./.venv/bin/python -m pytest tests/ -q            # 12 tests, ~0.3s
 ./.venv/bin/python -m eval.run_eval --papers 40 --workers 2   # cached: near-instant
 ./.venv/bin/python -m eval.sweep --config E
-./.venv/bin/python -m eval.sweep --records results/balanced/records.jsonl --config E
+./.venv/bin/python -m eval.sweep --records results/balanced/records.jsonl --config E --out results/balanced
+./.venv/bin/python -m eval.abstention_signals --records results/balanced/records.jsonl --config E --out results/balanced/signals.json
 ./.venv/bin/uvicorn app:app --reload              # http://127.0.0.1:8000
 ```
 

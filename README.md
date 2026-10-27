@@ -1,11 +1,13 @@
 # Vistaar
 
-**Citation-grounded document QA with calibrated abstention.**
+**Citation-grounded document QA with thresholded abstention.**
 
 Vistaar answers questions about your documents and tells you exactly which
 passages support each answer. When the document does not contain the answer,
 it says so instead of guessing — and that abstention decision is driven by a
-calibrated confidence score you can tune against measured risk.
+reader confidence score whose threshold can be tuned against measured risk.
+We report the full risk–coverage curve rather than claiming probability
+calibration.
 
 This repository contains a working service **and** the evaluation harness used
 to produce its published numbers.
@@ -114,6 +116,11 @@ curl -sL "https://huggingface.co/api/datasets/allenai/qasper/parquet/qasper/vali
 
 python -m eval.run_eval --papers 40 --workers 2
 python -m eval.sweep --config E
+python -m eval.run_eval --papers 281 --only E --balanced
+python -m eval.sweep --records results/balanced/records.jsonl --config E \
+  --out results/balanced
+python -m eval.abstention_signals --records results/balanced/records.jsonl \
+  --config E --out results/balanced/signals.json
 ```
 
 Results are written to `results/`:
@@ -122,6 +129,7 @@ Results are written to `results/`:
 - `table.md` — the ablation table
 - `records.jsonl` — per-question predictions, scores and retrieved passages
 - `sweep_E.json` / `.md` — risk–coverage curve and confidence AUC
+- `balanced/` — class-balanced run: summary, records, sweep and `signals.json`
 
 ### Evaluation matrix
 
@@ -167,17 +175,42 @@ Two findings worth knowing before you read the numbers as a ranking:
   on MS MARCO web passages does not transfer to reference-dense scientific text.
   Do not adopt one without evaluating it on your own domain.
 
-Abstention: confidence AUC = **0.696**. Thresholding raises answer F1 from
-0.019 at full coverage to **0.083 at 15% coverage** (4.4×). See
-`results/sweep_E.md`.
+Abstention: confidence AUC = **0.696** on the natural-prevalence sample, but that
+estimate rests on only 5 negatives. Thresholding raises selective F1 from 0.019
+at full coverage to **0.083 at 15% coverage** (4.4×). See `results/sweep_E.md`.
+
+### Class-balanced abstention (config E)
+
+Because the natural sample has only 5 negatives, the primary abstention analysis
+uses a class-balanced slice: all 51 documents in the 281-paper split that contain
+at least one unanswerable question → **231 questions (171 answerable, 60
+unanswerable), 4,645 chunks**.
+
+| Quantity | Natural (n=127) | Balanced (n=231) |
+|---|---|---|
+| AUC | 0.696 | **0.617** |
+| Peak balanced accuracy | 0.639 @ 0.10 | **0.566** @ 0.10 |
+| Best selective F1 | 0.083 @ 0.15 coverage | **0.055** @ 0.16 coverage |
+| Selective F1 at full coverage | 0.019 | 0.0385 |
+| Selective-F1 gain | 4.4× | **1.4×** |
+
+Signal comparison on the balanced slice: confidence **0.6172**, retrieval score
+alone 0.5830, confidence + z-scored retrieval 0.5832. Neither retrieval nor the
+simple combination beats confidence. Reproduce with
+`python -m eval.abstention_signals`. See `results/balanced/`.
 
 ### Known limitations
 
 - F1 understates quality: QASPER gold answers are abstractive while the local
   reader is extractive, so correct-but-shorter answers score low.
 - The evaluation is single-domain (NLP papers) and English-only.
-- Only 5 of 127 questions are unanswerable, so the abstention AUC is noisy.
-  A class-balanced run over the full 281-paper split is the next step.
+- Abstention is weak. On the balanced slice peak balanced accuracy is 0.566 and
+  no threshold achieves both useful selective F1 and good discrimination. The
+  natural-sample AUC of 0.696 is not a stable estimate.
+- The balanced slice overlaps the 40-paper run and reuses cached predictions, so
+  the two analyses are not independent.
+- Every threshold is selected on the same questions it is scored on; there is no
+  held-out calibration set.
 - Citation precision uses vocabulary overlap against gold evidence — strict,
   but it cannot credit correct paraphrase.
 - No human evaluation.
@@ -202,6 +235,7 @@ eval/
   metrics.py       EM, F1, citation P/R, bootstrap CI, paired test
   run_eval.py      evaluation matrix runner
   sweep.py         abstention threshold sweep / risk-coverage
+  abstention_signals.py  offline comparison of abstention signals
 tests/
   test_core.py     12 tests, no model downloads
 ```

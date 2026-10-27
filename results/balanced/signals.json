@@ -1,0 +1,16 @@
+{
+  "n": 231,
+  "answerable": 171,
+  "unanswerable": 60,
+  "retrieval_mean": -2.43748,
+  "retrieval_std": 5.20146,
+  "auc": {
+    "confidence": 0.6172,
+    "retrieval": 0.583,
+    "confidence_plus_z_retrieval": 0.5832
+  },
+  "delta_vs_confidence": {
+    "retrieval": -0.0342,
+    "confidence_plus_z_retrieval": -0.034
+  }
+}
