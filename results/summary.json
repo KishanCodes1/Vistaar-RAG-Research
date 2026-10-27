@@ -1,0 +1,96 @@
+{
+  "papers": 40,
+  "questions": 127,
+  "results": [
+    {
+      "config": "A: dense",
+      "n": 122,
+      "f1": 0.0403,
+      "f1_ci": [
+        0.024,
+        0.06
+      ],
+      "em": 0.0,
+      "citation_precision": 0.0866,
+      "citation_recall": 0.1038,
+      "retrieval_recall": 0.1841,
+      "abstention_accuracy": 0.9606,
+      "over_abstention": 0.0,
+      "missed_unanswerable": 1.0,
+      "mean_latency_s": 0.59,
+      "errors": 0
+    },
+    {
+      "config": "B: dense+abstain",
+      "n": 122,
+      "f1": 0.041,
+      "f1_ci": [
+        0.0247,
+        0.0606
+      ],
+      "em": 0.0,
+      "citation_precision": 0.0866,
+      "citation_recall": 0.1038,
+      "retrieval_recall": 0.1841,
+      "abstention_accuracy": 0.189,
+      "over_abstention": 0.8443,
+      "missed_unanswerable": 0.0,
+      "mean_latency_s": 0.59,
+      "errors": 0
+    },
+    {
+      "config": "C: hybrid",
+      "n": 122,
+      "f1": 0.0721,
+      "f1_ci": [
+        0.0456,
+        0.1033
+      ],
+      "em": 0.0082,
+      "citation_precision": 0.0945,
+      "citation_recall": 0.1288,
+      "retrieval_recall": 0.2671,
+      "abstention_accuracy": 0.9606,
+      "over_abstention": 0.0,
+      "missed_unanswerable": 1.0,
+      "mean_latency_s": 0.66,
+      "errors": 0
+    },
+    {
+      "config": "D: hybrid+rerank",
+      "n": 122,
+      "f1": 0.0795,
+      "f1_ci": [
+        0.0506,
+        0.1135
+      ],
+      "em": 0.0164,
+      "citation_precision": 0.1024,
+      "citation_recall": 0.139,
+      "retrieval_recall": 0.2467,
+      "abstention_accuracy": 0.9606,
+      "over_abstention": 0.0,
+      "missed_unanswerable": 1.0,
+      "mean_latency_s": 0.86,
+      "errors": 0
+    },
+    {
+      "config": "E: full (hybrid+rerank+abstain)",
+      "n": 122,
+      "f1": 0.0795,
+      "f1_ci": [
+        0.0506,
+        0.1135
+      ],
+      "em": 0.0164,
+      "citation_precision": 0.1024,
+      "citation_recall": 0.139,
+      "retrieval_recall": 0.2467,
+      "abstention_accuracy": 0.189,
+      "over_abstention": 0.8443,
+      "missed_unanswerable": 0.0,
+      "mean_latency_s": 0.88,
+      "errors": 0
+    }
+  ]
+}

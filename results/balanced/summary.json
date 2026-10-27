@@ -1,0 +1,24 @@
+{
+  "papers": 281,
+  "questions": 231,
+  "results": [
+    {
+      "config": "E: full (hybrid+rerank+abstain)",
+      "n": 171,
+      "f1": 0.0559,
+      "f1_ci": [
+        0.0388,
+        0.0763
+      ],
+      "em": 0.0058,
+      "citation_precision": 0.026,
+      "citation_recall": 0.1004,
+      "retrieval_recall": 0.1834,
+      "abstention_accuracy": 0.3247,
+      "over_abstention": 0.8772,
+      "missed_unanswerable": 0.1,
+      "mean_latency_s": 0.86,
+      "errors": 0
+    }
+  ]
+}

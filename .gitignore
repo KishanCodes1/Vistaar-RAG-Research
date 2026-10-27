@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/raw/
+data/store/
+results/cache/
+.pytest_cache/
+.env
+data/raw/
+__pycache__/
+*.pyc

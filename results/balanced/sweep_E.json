@@ -1,0 +1,204 @@
+{
+  "auc": 0.6172,
+  "n": 231,
+  "curve": [
+    {
+      "threshold": 0.0,
+      "coverage": 1.0,
+      "selective_f1": 0.0385,
+      "abstention_accuracy": 0.7403,
+      "balanced_accuracy": 0.5,
+      "answered_unanswerable": 60,
+      "answered_answerable": 171
+    },
+    {
+      "threshold": 0.05,
+      "coverage": 0.3377,
+      "selective_f1": 0.041,
+      "abstention_accuracy": 0.4589,
+      "balanced_accuracy": 0.548,
+      "answered_unanswerable": 16,
+      "answered_answerable": 62
+    },
+    {
+      "threshold": 0.1,
+      "coverage": 0.2814,
+      "selective_f1": 0.0404,
+      "abstention_accuracy": 0.4459,
+      "balanced_accuracy": 0.5662,
+      "answered_unanswerable": 11,
+      "answered_answerable": 54
+    },
+    {
+      "threshold": 0.15,
+      "coverage": 0.2338,
+      "selective_f1": 0.0384,
+      "abstention_accuracy": 0.3983,
+      "balanced_accuracy": 0.5341,
+      "answered_unanswerable": 11,
+      "answered_answerable": 43
+    },
+    {
+      "threshold": 0.2,
+      "coverage": 0.2165,
+      "selective_f1": 0.0384,
+      "abstention_accuracy": 0.3896,
+      "balanced_accuracy": 0.5336,
+      "answered_unanswerable": 10,
+      "answered_answerable": 40
+    },
+    {
+      "threshold": 0.25,
+      "coverage": 0.2035,
+      "selective_f1": 0.0394,
+      "abstention_accuracy": 0.3939,
+      "balanced_accuracy": 0.5474,
+      "answered_unanswerable": 8,
+      "answered_answerable": 39
+    },
+    {
+      "threshold": 0.3,
+      "coverage": 0.1818,
+      "selective_f1": 0.0452,
+      "abstention_accuracy": 0.3723,
+      "balanced_accuracy": 0.5327,
+      "answered_unanswerable": 8,
+      "answered_answerable": 34
+    },
+    {
+      "threshold": 0.35,
+      "coverage": 0.1688,
+      "selective_f1": 0.0496,
+      "abstention_accuracy": 0.3593,
+      "balanced_accuracy": 0.524,
+      "answered_unanswerable": 8,
+      "answered_answerable": 31
+    },
+    {
+      "threshold": 0.4,
+      "coverage": 0.1558,
+      "selective_f1": 0.0549,
+      "abstention_accuracy": 0.3463,
+      "balanced_accuracy": 0.5152,
+      "answered_unanswerable": 8,
+      "answered_answerable": 28
+    },
+    {
+      "threshold": 0.45,
+      "coverage": 0.1342,
+      "selective_f1": 0.0512,
+      "abstention_accuracy": 0.342,
+      "balanced_accuracy": 0.5231,
+      "answered_unanswerable": 6,
+      "answered_answerable": 25
+    },
+    {
+      "threshold": 0.5,
+      "coverage": 0.1169,
+      "selective_f1": 0.0373,
+      "abstention_accuracy": 0.3247,
+      "balanced_accuracy": 0.5114,
+      "answered_unanswerable": 6,
+      "answered_answerable": 21
+    },
+    {
+      "threshold": 0.55,
+      "coverage": 0.1169,
+      "selective_f1": 0.0373,
+      "abstention_accuracy": 0.3247,
+      "balanced_accuracy": 0.5114,
+      "answered_unanswerable": 6,
+      "answered_answerable": 21
+    },
+    {
+      "threshold": 0.6,
+      "coverage": 0.1039,
+      "selective_f1": 0.0272,
+      "abstention_accuracy": 0.3117,
+      "balanced_accuracy": 0.5026,
+      "answered_unanswerable": 6,
+      "answered_answerable": 18
+    },
+    {
+      "threshold": 0.65,
+      "coverage": 0.0779,
+      "selective_f1": 0.0376,
+      "abstention_accuracy": 0.2944,
+      "balanced_accuracy": 0.4963,
+      "answered_unanswerable": 5,
+      "answered_answerable": 13
+    },
+    {
+      "threshold": 0.7,
+      "coverage": 0.0736,
+      "selective_f1": 0.0391,
+      "abstention_accuracy": 0.29,
+      "balanced_accuracy": 0.4934,
+      "answered_unanswerable": 5,
+      "answered_answerable": 12
+    },
+    {
+      "threshold": 0.75,
+      "coverage": 0.0649,
+      "selective_f1": 0.0319,
+      "abstention_accuracy": 0.2814,
+      "balanced_accuracy": 0.4876,
+      "answered_unanswerable": 5,
+      "answered_answerable": 10
+    },
+    {
+      "threshold": 0.8,
+      "coverage": 0.0606,
+      "selective_f1": 0.0319,
+      "abstention_accuracy": 0.2857,
+      "balanced_accuracy": 0.4959,
+      "answered_unanswerable": 4,
+      "answered_answerable": 10
+    },
+    {
+      "threshold": 0.85,
+      "coverage": 0.0519,
+      "selective_f1": 0.0274,
+      "abstention_accuracy": 0.2771,
+      "balanced_accuracy": 0.4901,
+      "answered_unanswerable": 4,
+      "answered_answerable": 8
+    },
+    {
+      "threshold": 0.9,
+      "coverage": 0.0346,
+      "selective_f1": 0.0085,
+      "abstention_accuracy": 0.2684,
+      "balanced_accuracy": 0.4896,
+      "answered_unanswerable": 3,
+      "answered_answerable": 5
+    },
+    {
+      "threshold": 0.95,
+      "coverage": 0.026,
+      "selective_f1": 0.0142,
+      "abstention_accuracy": 0.2597,
+      "balanced_accuracy": 0.4838,
+      "answered_unanswerable": 3,
+      "answered_answerable": 3
+    },
+    {
+      "threshold": 1.0,
+      "coverage": 0.0,
+      "selective_f1": 0.0,
+      "abstention_accuracy": 0.2597,
+      "balanced_accuracy": 0.5,
+      "answered_unanswerable": 0,
+      "answered_answerable": 0
+    }
+  ],
+  "best": {
+    "threshold": 0.4,
+    "coverage": 0.1558,
+    "selective_f1": 0.0549,
+    "abstention_accuracy": 0.3463,
+    "balanced_accuracy": 0.5152,
+    "answered_unanswerable": 8,
+    "answered_answerable": 28
+  }
+}

@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Unit tests
+        run: python -m pytest tests/ -q
+
+  eval-gate:
+    # Regression gate: refuses a merge if retrieval quality drops.
+    # Runs on a fixed 8-paper slice so it finishes in CI budget.
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Fetch evaluation data
+        run: make data
+      - name: Evaluate
+        run: python -m eval.run_eval --papers 8 --workers 2 --out ci-results
+      - name: Check quality gate
+        run: |
+          python - <<'PY'
+          import json, sys
+          rows = json.load(open("ci-results/summary.json"))["results"]
+          full = next(r for r in rows if r["config"].startswith("E"))
+          print(f"config E: F1={full['f1']:.4f} retrieval_recall={full['retrieval_recall']:.4f}")
+          # Thresholds are deliberately loose: CI hardware and RNG differ from
+          # the reference run. The gate catches regressions, not noise.
+          MIN_F1 = 0.01
+          MIN_RETRIEVAL = 0.10
+          if full["f1"] < MIN_F1:
+              sys.exit(f"F1 regression: {full['f1']} < {MIN_F1}")
+          if full["retrieval_recall"] < MIN_RETRIEVAL:
+              sys.exit(f"Retrieval regression: {full['retrieval_recall']} < {MIN_RETRIEVAL}")
+          print("quality gate passed")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results
+          path: ci-results/
