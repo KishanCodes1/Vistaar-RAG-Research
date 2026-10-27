@@ -339,7 +339,14 @@ class Reranker:
                     cls._instance.available = False
             return cls._instance
 
-    def rerank(self, query: str, hits: list[Hit], top_n: int) -> list[Hit]:
+    def rerank(
+        self,
+        query: str,
+        hits: list[Hit],
+        top_n: int,
+        scored_candidates: list[Hit] | None = None,
+    ) -> list[Hit]:
+        """Rerank and optionally expose the complete scored candidate list."""
         if not hits:
             return hits
         if not getattr(self, "available", False):
@@ -350,4 +357,6 @@ class Reranker:
             Hit(h.chunk, float(s), "rerank") for h, s in zip(hits, scores)
         ]
         rescored.sort(key=lambda h: h.score, reverse=True)
+        if scored_candidates is not None:
+            scored_candidates.extend(rescored)
         return rescored[:top_n]

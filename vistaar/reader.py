@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import math
 import threading
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from .index import Hit
 
@@ -24,11 +24,65 @@ MAX_ANSWER_TOKENS = 48
 
 
 @dataclass
+class ReaderDiagnostics:
+    """Signals already available while selecting a local extractive span."""
+
+    available: bool
+    found: bool
+    passage_count: int
+    context_characters: int
+    window_count: int
+    candidate_start_count: int
+    candidate_span_count: int
+    best_span_score: float | None = None
+    second_best_span_score: float | None = None
+    selected_window: int | None = None
+    selected_start_token: int | None = None
+    selected_end_token: int | None = None
+    selected_null_score: float | None = None
+    null_score_min: float | None = None
+    null_score_max: float | None = None
+    span_null_margin: float | None = None
+    selected_passage: int | None = None
+    no_span_reason: str | None = None
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class _ReaderDiagnosticState:
+    """Diagnostic-only search state; instantiated only when explicitly enabled."""
+
+    candidate_start_count: int = 0
+    candidate_span_count: int = 0
+    second_best_span: tuple[float, int, int, int] | None = None
+
+    def record_start(self) -> None:
+        self.candidate_start_count += 1
+
+    def record_span(self) -> None:
+        self.candidate_span_count += 1
+
+    def replace_best(self, previous_best: tuple[float, int, int, int] | None) -> None:
+        if previous_best is not None and (
+            self.second_best_span is None
+            or previous_best[0] > self.second_best_span[0]
+        ):
+            self.second_best_span = previous_best
+
+    def consider_non_best(self, candidate: tuple[float, int, int, int]) -> None:
+        if self.second_best_span is None or candidate[0] > self.second_best_span[0]:
+            self.second_best_span = candidate
+
+
+@dataclass
 class ReaderOutput:
     answer: str
     confidence: float
     passage_ids: list[int]
     found: bool
+    diagnostics: ReaderDiagnostics | None = None
 
 
 class LocalReader:
@@ -64,9 +118,34 @@ class LocalReader:
                 cls._instance = cls(model_name, revision)
             return cls._instance
 
-    def answer(self, question: str, hits: list[Hit], max_passages: int = 4) -> ReaderOutput:
+    def answer(
+        self,
+        question: str,
+        hits: list[Hit],
+        max_passages: int = 4,
+        collect_diagnostics: bool = False,
+    ) -> ReaderOutput:
         if not hits:
-            return ReaderOutput("", 0.0, [], False)
+            return ReaderOutput(
+                "",
+                0.0,
+                [],
+                False,
+                (
+                    ReaderDiagnostics(
+                        available=False,
+                        found=False,
+                        passage_count=0,
+                        context_characters=0,
+                        window_count=0,
+                        candidate_start_count=0,
+                        candidate_span_count=0,
+                        no_span_reason="no_retrieved_passages",
+                    )
+                    if collect_diagnostics
+                    else None
+                ),
+            )
 
         parts: list[str] = []
         spans: list[tuple[int, int, int]] = []  # (char_start, char_end, passage_number)
@@ -98,6 +177,7 @@ class LocalReader:
 
         best_span: tuple[float, int, int, int] | None = None  # (score, window, start_tok, end_tok)
         null_by_window: dict[int, float] = {}
+        diagnostic_state = _ReaderDiagnosticState() if collect_diagnostics else None
 
         for window in range(logits.start_logits.shape[0]):
             start_logits = logits.start_logits[window]
@@ -113,15 +193,44 @@ class LocalReader:
             for i in context_positions:
                 if float(start_probs[i]) < 0.02:
                     continue
+                if diagnostic_state is not None:
+                    diagnostic_state.record_start()
                 for j in context_positions:
                     if j < i or j - i > MAX_ANSWER_TOKENS:
                         continue
+                    if diagnostic_state is not None:
+                        diagnostic_state.record_span()
                     score = float(start_logits[i] + end_logits[j])
                     if best_span is None or score > best_span[0]:
+                        if diagnostic_state is not None:
+                            diagnostic_state.replace_best(best_span)
                         best_span = (score, window, i, j)
+                    elif diagnostic_state is not None:
+                        diagnostic_state.consider_non_best((score, window, i, j))
 
         if best_span is None:
-            return ReaderOutput("", 0.0, [], False)
+            diagnostics = None
+            if diagnostic_state is not None:
+                null_scores = list(null_by_window.values())
+                diagnostics = ReaderDiagnostics(
+                    available=True,
+                    found=False,
+                    passage_count=min(len(hits), max_passages),
+                    context_characters=len(context),
+                    window_count=int(encoded["input_ids"].shape[0]),
+                    candidate_start_count=diagnostic_state.candidate_start_count,
+                    candidate_span_count=diagnostic_state.candidate_span_count,
+                    null_score_min=min(null_scores) if null_scores else None,
+                    null_score_max=max(null_scores) if null_scores else None,
+                    no_span_reason="no_candidate_span",
+                )
+            return ReaderOutput(
+                "",
+                0.0,
+                [],
+                False,
+                diagnostics,
+            )
 
         score, window, start_tok, end_tok = best_span
         char_start = offsets[window][start_tok][0].item()
@@ -129,7 +238,38 @@ class LocalReader:
         answer = context[char_start:char_end].strip()
 
         if not answer:
-            return ReaderOutput("", 0.0, [], False)
+            diagnostics = None
+            if diagnostic_state is not None:
+                null_scores = list(null_by_window.values())
+                diagnostics = ReaderDiagnostics(
+                    available=True,
+                    found=False,
+                    passage_count=min(len(hits), max_passages),
+                    context_characters=len(context),
+                    window_count=int(encoded["input_ids"].shape[0]),
+                    candidate_start_count=diagnostic_state.candidate_start_count,
+                    candidate_span_count=diagnostic_state.candidate_span_count,
+                    best_span_score=score,
+                    second_best_span_score=(
+                        diagnostic_state.second_best_span[0]
+                        if diagnostic_state.second_best_span
+                        else None
+                    ),
+                    selected_window=window,
+                    selected_start_token=start_tok,
+                    selected_end_token=end_tok,
+                    selected_null_score=null_by_window.get(window),
+                    null_score_min=min(null_scores) if null_scores else None,
+                    null_score_max=max(null_scores) if null_scores else None,
+                    no_span_reason="empty_decoded_span",
+                )
+            return ReaderOutput(
+                "",
+                0.0,
+                [],
+                False,
+                diagnostics,
+            )
 
         # Confidence is the probability that the answer span beats the
         # SQuAD2 null hypothesis, i.e. sigmoid(span_logit - null_logit).
@@ -140,7 +280,39 @@ class LocalReader:
         confidence = 1.0 / (1.0 + self._exp(-margin))
 
         cited = [number for s, e, number in spans if s <= char_start < e]
-        return ReaderOutput(answer, confidence, cited, True)
+        diagnostics = None
+        if diagnostic_state is not None:
+            null_scores = list(null_by_window.values())
+            diagnostics = ReaderDiagnostics(
+                available=True,
+                found=True,
+                passage_count=min(len(hits), max_passages),
+                context_characters=len(context),
+                window_count=int(encoded["input_ids"].shape[0]),
+                candidate_start_count=diagnostic_state.candidate_start_count,
+                candidate_span_count=diagnostic_state.candidate_span_count,
+                best_span_score=score,
+                second_best_span_score=(
+                    diagnostic_state.second_best_span[0]
+                    if diagnostic_state.second_best_span
+                    else None
+                ),
+                selected_window=window,
+                selected_start_token=start_tok,
+                selected_end_token=end_tok,
+                selected_null_score=null_by_window.get(window),
+                null_score_min=min(null_scores) if null_scores else None,
+                null_score_max=max(null_scores) if null_scores else None,
+                span_null_margin=margin,
+                selected_passage=cited[0] if cited else None,
+            )
+        return ReaderOutput(
+            answer,
+            confidence,
+            cited,
+            True,
+            diagnostics,
+        )
 
     @staticmethod
     def _exp(x: float) -> float:

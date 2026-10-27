@@ -11,6 +11,7 @@ from eval.provenance import EvaluationCache, stable_fingerprint
 from eval.qasper import EvalItem
 from eval.run_eval import build_run_payload
 from vistaar.config import Settings
+from vistaar.diagnostics import CONFIDENCE_DIAGNOSTICS_SCHEMA
 from vistaar.pipeline import RetrievalConfig
 
 
@@ -166,7 +167,14 @@ def test_real_run_payload_fingerprints_evaluation_inputs(tmp_path, monkeypatch):
         values.update(overrides)
         return build_run_payload(**values)
 
-    original = stable_fingerprint(payload())
+    original_payload = payload()
+    original = stable_fingerprint(original_payload)
+    assert original_payload["diagnostics"] == {
+        "schema_version": CONFIDENCE_DIAGNOSTICS_SCHEMA,
+        "enabled_for_records": True,
+        "inference_time_only": True,
+    }
+    assert "vistaar/diagnostics.py" in original_payload["implementation"]
     changed_item = replace(item, doc_text="Changed document content.")
     changed_chunking = replace(settings, chunk_size=900)
     changed_model = replace(settings, embedding_revision="different-revision")

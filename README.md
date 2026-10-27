@@ -135,6 +135,7 @@ a non-empty output directory. Outputs include:
 - `summary.json` — all metrics with bootstrap confidence intervals
 - `table.md` — the ablation table
 - `records.jsonl` — predictions, all gold answers, scores and chunk provenance
+- optional confidence diagnostics follow `docs/CONFIDENCE_DIAGNOSTICS.md`
 - `run_manifest.json` — dataset/code/model/config fingerprints and index checks
 - `sweep_E.json` / `.md` — risk–coverage curve and confidence AUC
 - `threshold_protocol/` — document-disjoint calibration/test results
@@ -241,6 +242,7 @@ retrieval 0.5830, and confidence + z(retrieval) 0.5827.
 ```
 vistaar/
   config.py        settings; env normalisation
+  diagnostics.py   optional inference-time confidence diagnostics schema
   text.py          extraction + boundary-aware chunking with provenance
   index.py         embeddings, per-namespace FAISS/BM25 store, RRF, reranker
   reader.py        local span reader with null-hypothesis confidence
@@ -258,7 +260,7 @@ eval/
   threshold_protocol.py document-grouped calibration and held-out evaluation
   compare_results.py historical-to-clean record verification
 tests/
-  ...              38 tests, no model downloads
+  ...              45 tests, no model downloads
 ```
 
 ---

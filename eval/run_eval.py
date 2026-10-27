@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from vistaar.config import Settings
+from vistaar.diagnostics import CONFIDENCE_DIAGNOSTICS_SCHEMA
 from vistaar.generate import SYSTEM_PROMPT
 from vistaar.pipeline import RAGPipeline, RetrievalConfig
 from vistaar.reader import MAX_ANSWER_TOKENS, MAX_LENGTH, STRIDE
@@ -66,6 +67,7 @@ IMPLEMENTATION_FILES = (
     "eval/run_eval.py",
     "eval/provenance.py",
     "vistaar/config.py",
+    "vistaar/diagnostics.py",
     "vistaar/generate.py",
     "vistaar/index.py",
     "vistaar/pipeline.py",
@@ -189,6 +191,11 @@ def build_run_payload(
             "max_output_tokens": 1024,
         },
         "execution": {"workers": workers, "reader_passages": READER_PASSAGES},
+        "diagnostics": {
+            "schema_version": CONFIDENCE_DIAGNOSTICS_SCHEMA,
+            "enabled_for_records": True,
+            "inference_time_only": True,
+        },
         "environment": {
             "python": platform.python_version(),
             "platform": platform.platform(),
@@ -370,8 +377,20 @@ def main() -> None:
         )
 
         def work(item: EvalItem) -> dict:
-            hits = pipeline.retrieve(item.question, namespace=item.doc_id, config=config)
-            answer = pipeline.answer(item.question, namespace=item.doc_id, config=config, hits=hits)
+            diagnostics: dict = {}
+            hits = pipeline.retrieve(
+                item.question,
+                namespace=item.doc_id,
+                config=config,
+                diagnostics=diagnostics,
+            )
+            answer = pipeline.answer(
+                item.question,
+                namespace=item.doc_id,
+                config=config,
+                hits=hits,
+                diagnostics=diagnostics,
+            )
             return {
                 "config": config.name,
                 "question_id": item.question_id,
@@ -404,6 +423,7 @@ def main() -> None:
                 "latency_s": answer.latency_s,
                 "model": answer.model,
                 "gold_evidence": item.gold_evidence,
+                "diagnostics": answer.diagnostics,
             }
 
         done = 0
