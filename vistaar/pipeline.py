@@ -34,12 +34,12 @@ class Answer:
     model: str = ""
     prompt_tokens: int = 0
     output_tokens: int = 0
-    raw_answer: str = ""
+    raw_answer: str | None = None
 
     def to_dict(self) -> dict:
         return {
             "answer": self.answer,
-            "raw_answer": self.raw_answer or self.answer,
+            "raw_answer": self.answer if self.raw_answer is None else self.raw_answer,
             "abstained": self.abstained,
             "citations": self.citations,
             "scores": self.scores,
@@ -54,7 +54,9 @@ class RAGPipeline:
     def __init__(self, settings: Settings, config: RetrievalConfig | None = None):
         self.settings = settings
         self.config = config or RetrievalConfig()
-        self.embedder = Embedder.get(settings.embedding_model)
+        self.embedder = Embedder.get(
+            settings.embedding_model, settings.embedding_revision
+        )
         self.store = Store(self.embedder.dimension, settings.data_dir)
         self._reranker: Reranker | None = None
         self._reader = None
@@ -66,7 +68,9 @@ class RAGPipeline:
         if self._reader is None:
             from .reader import LocalReader
 
-            self._reader = LocalReader.get(self.settings.reader_model)
+            self._reader = LocalReader.get(
+                self.settings.reader_model, self.settings.reader_revision
+            )
         return self._reader
 
     @property
@@ -82,11 +86,18 @@ class RAGPipeline:
 
     def _get_reranker(self) -> Reranker | None:
         if self._reranker is None:
-            self._reranker = Reranker.get(self.settings.reranker_model)
+            self._reranker = Reranker.get(
+                self.settings.reranker_model, self.settings.reranker_revision
+            )
         return self._reranker
 
     # -- ingestion -----------------------------------------------------
     def index_document(self, filename: str, content: bytes, namespace: str = "default") -> dict:
+        """Index or replace one deterministic document within ``namespace``.
+
+        Re-indexing identical filename/content is idempotent. A replacement is
+        scoped to the extracted document ID and never clears other documents.
+        """
         document = extract_document(filename, content)
         chunks = chunk_document(
             document, size=self.settings.chunk_size, overlap=self.settings.chunk_overlap
@@ -96,17 +107,17 @@ class RAGPipeline:
 
         started = time.monotonic()
         vectors = self.embedder.encode([c.text for c in chunks])
-        self.store.get(namespace).add(chunks, vectors)
-        try:
-            self.store.persist(namespace)
-        except Exception:
-            pass
+        target = self.store.get(namespace)
+        replaced_chunks = target.upsert_document(chunks, vectors)
+        self.store.persist(namespace)
 
         return {
             "doc_id": document.doc_id,
             "filename": filename,
             "pages": len(document.pages),
             "chunks": len(chunks),
+            "namespace_chunks": target.size,
+            "replaced_chunks": replaced_chunks,
             "namespace": namespace,
             "index_time_s": round(time.monotonic() - started, 3),
         }
@@ -148,6 +159,7 @@ class RAGPipeline:
         if not hits:
             return Answer(
                 answer=ABSTAIN_MESSAGE,
+                raw_answer="",
                 abstained=True,
                 citations=[],
                 scores={"confidence": 0.0, "retrieval": 0.0, "passages": 0},
@@ -202,6 +214,7 @@ class RAGPipeline:
         if config.use_abstention and hits[0].source == "dense" and best_dense < self.settings.min_retrieval_score:
             return Answer(
                 answer=ABSTAIN_MESSAGE,
+                raw_answer="",
                 abstained=True,
                 citations=[],
                 scores={"confidence": 0.0, "retrieval": round(best_dense, 5), "passages": len(hits)},
@@ -235,6 +248,7 @@ class RAGPipeline:
         abstained = not parsed["found"] and bool(config.use_abstention)
         return Answer(
             answer=ABSTAIN_MESSAGE if abstained else parsed["answer"],
+            raw_answer=parsed["answer"],
             abstained=abstained,
             citations=citations,
             scores={

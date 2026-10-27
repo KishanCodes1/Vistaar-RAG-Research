@@ -114,22 +114,34 @@ experiment gets real negatives for free.
 curl -sL "https://huggingface.co/api/datasets/allenai/qasper/parquet/qasper/validation/0.parquet" \
   -o data/raw/qasper_validation.parquet
 
-python -m eval.run_eval --papers 40 --workers 2
-python -m eval.sweep --config E
-python -m eval.run_eval --papers 281 --only E --balanced
-python -m eval.sweep --records results/balanced/records.jsonl --config E \
-  --out results/balanced
-python -m eval.abstention_signals --records results/balanced/records.jsonl \
-  --config E --out results/balanced/signals.json
+NATURAL=results/runs/natural-clean
+ENRICHED=results/runs/negative-enriched-clean
+
+python -m eval.run_eval --papers 40 --workers 2 --out "$NATURAL"
+python -m eval.sweep --records "$NATURAL/records.jsonl" --config E \
+  --out "$NATURAL"
+
+python -m eval.run_eval --papers 281 --only E --balanced --workers 2 \
+  --out "$ENRICHED"
+python -m eval.sweep --records "$ENRICHED/records.jsonl" --config E \
+  --out "$ENRICHED"
+python -m eval.threshold_protocol --records "$ENRICHED/records.jsonl" \
+  --config E --out "$ENRICHED/threshold_protocol"
 ```
 
-Results are written to `results/`:
+Every evaluation has an isolated index/cache fingerprint and refuses to replace
+a non-empty output directory. Outputs include:
 
 - `summary.json` — all metrics with bootstrap confidence intervals
 - `table.md` — the ablation table
-- `records.jsonl` — per-question predictions, scores and retrieved passages
+- `records.jsonl` — predictions, all gold answers, scores and chunk provenance
+- `run_manifest.json` — dataset/code/model/config fingerprints and index checks
 - `sweep_E.json` / `.md` — risk–coverage curve and confidence AUC
-- `balanced/` — class-balanced run: summary, records, sweep and `signals.json`
+- `threshold_protocol/` — document-disjoint calibration/test results
+
+The original Milestone 1 artifacts remain under `results/` and
+`results/balanced/`. The clean audited artifacts are under
+`results/milestone2/`; see `docs/MILESTONE2_REPORT.md`.
 
 ### Evaluation matrix
 
@@ -151,66 +163,72 @@ Results are written to `results/`:
 | Cite-R | fraction of gold-evidence vocabulary covered by cited passages |
 | Abst-Acc | share of questions where answering/abstaining matched gold answerability |
 | AUC | confidence score's ability to separate answerable from unanswerable questions |
+| Balanced Acc | mean answerable recall and unanswerable recall |
+| Conditional F1 | first-gold F1 among covered answerable questions |
+| Covered F1 | F1 over every covered question, assigning zero to answered unanswerable questions |
 | Latency | wall-clock per question |
 
-All headline numbers are reported with bootstrap 95% confidence intervals
-(1000 resamples). Configurations are compared with a paired bootstrap test whose
-differences are centred under the null.
+Answer-F1 summaries use 1,000 bootstrap resamples. Held-out abstention intervals
+use 2,000 document-cluster resamples. Configurations are compared with a paired
+bootstrap test whose differences are centred under the null.
 
-### Results (QASPER validation, 40 papers, 127 questions, 7,391 chunks)
+### Clean results (QASPER validation, 40 papers, 127 questions, 2,987 unique chunks)
 
 | Config | F1 [95% CI] | Cite-P | Cite-R | Ret-R | Lat (s) |
 |---|---|---|---|---|---|
-| A: dense | 0.0403 [0.024, 0.060] | 0.087 | 0.104 | 0.184 | 0.59 |
-| C: hybrid | 0.0721 [0.046, 0.103] | 0.095 | 0.129 | **0.267** | 0.66 |
-| D: hybrid+rerank | 0.0795 [0.051, 0.114] | 0.102 | 0.139 | 0.247 | 0.86 |
-| E: full | 0.0795 [0.051, 0.114] | 0.102 | 0.139 | 0.247 | 0.88 |
+| A: dense | 0.0604 [0.038, 0.087] | 0.079 | 0.114 | 0.227 | 0.64 |
+| C: hybrid | 0.0719 [0.045, 0.103] | 0.095 | 0.133 | **0.267** | 0.98 |
+| D: hybrid+rerank | 0.0695 [0.043, 0.101] | 0.118 | 0.143 | 0.245 | 1.16 |
+| E: full | 0.0695 [0.043, 0.101] | 0.118 | 0.143 | 0.245 | 1.15 |
 
 Two findings worth knowing before you read the numbers as a ranking:
 
 - **Hybrid retrieval significantly improves evidence recall** over dense-only
-  (0.184 → 0.267, p < 0.001).
+  (0.227 → 0.267, paired bootstrap p < 0.0001).
 - **The cross-encoder reranker significantly *reduces* evidence recall**
-  (0.267 → 0.247, p = 0.002) even though it raises answer F1. A reranker trained
-  on MS MARCO web passages does not transfer to reference-dense scientific text.
-  Do not adopt one without evaluating it on your own domain.
+  (0.267 → 0.245, p = 0.0014). It also slightly reduces answer F1
+  (0.0719 → 0.0695), but not significantly (p = 0.8371). Do not adopt a
+  reranker without evaluating it on your own domain.
 
-Abstention: confidence AUC = **0.696** on the natural-prevalence sample, but that
-estimate rests on only 5 negatives. Thresholding raises selective F1 from 0.019
-at full coverage to **0.083 at 15% coverage** (4.4×). See `results/sweep_E.md`.
+The clean natural-sample AUC is **0.6459**, but it rests on only five negatives.
+The historical 0.019 selective-F1 baseline and 4.4× gain were invalid and are
+not retained as findings.
 
-### Class-balanced abstention (config E)
+### Negative-enriched abstention (config E)
 
 Because the natural sample has only 5 negatives, the primary abstention analysis
-uses a class-balanced slice: all 51 documents in the 281-paper split that contain
+uses a negative-enriched slice: all 51 documents in the 281-paper split that contain
 at least one unanswerable question → **231 questions (171 answerable, 60
-unanswerable), 4,645 chunks**.
+unanswerable), 3,784 unique chunks**. This is 74% answerable, not class-balanced.
 
-| Quantity | Natural (n=127) | Balanced (n=231) |
-|---|---|---|
-| AUC | 0.696 | **0.617** |
-| Peak balanced accuracy | 0.639 @ 0.10 | **0.566** @ 0.10 |
-| Best selective F1 | 0.083 @ 0.15 coverage | **0.055** @ 0.16 coverage |
-| Selective F1 at full coverage | 0.019 | 0.0385 |
-| Selective-F1 gain | 4.4× | **1.4×** |
+The document-disjoint protocol selects threshold **0.25** on 31 calibration
+documents (101 answerable / 40 unanswerable), then evaluates once on 20 held-out
+documents (70/20):
 
-Signal comparison on the balanced slice: confidence **0.6172**, retrieval score
-alone 0.5830, confidence + z-scored retrieval 0.5832. Neither retrieval nor the
-simple combination beats confidence. Reproduce with
-`python -m eval.abstention_signals`. See `results/balanced/`.
+| Held-out quantity | Result |
+|---|---:|
+| AUC | 0.6443 [0.5322, 0.7467] |
+| Balanced accuracy @ 0.25 | 0.5179 [0.4289, 0.5938] |
+| Coverage | 0.1778 |
+| Conditional F1 | 0.0115 (always answer: 0.0107) |
+| Covered F1 | 0.0094 (always answer: 0.0083) |
+| Answered unanswerable | 3 / 20 |
+
+The balanced-accuracy interval includes chance. The score does not yet support a
+useful abstention claim. On all 231 questions, signal AUCs are confidence 0.6181,
+retrieval 0.5830, and confidence + z(retrieval) 0.5827.
 
 ### Known limitations
 
 - F1 understates quality: QASPER gold answers are abstractive while the local
   reader is extractive, so correct-but-shorter answers score low.
 - The evaluation is single-domain (NLP papers) and English-only.
-- Abstention is weak. On the balanced slice peak balanced accuracy is 0.566 and
-  no threshold achieves both useful selective F1 and good discrimination. The
-  natural-sample AUC of 0.696 is not a stable estimate.
-- The balanced slice overlaps the 40-paper run and reuses cached predictions, so
-  the two analyses are not independent.
-- Every threshold is selected on the same questions it is scored on; there is no
-  held-out calibration set.
+- Abstention remains weak: held-out balanced accuracy is statistically
+  compatible with chance, and the natural held-out partition has only two
+  unanswerable questions.
+- The negative-enriched stress test is not representative of natural prevalence.
+- Conditional F1 excludes answered-unanswerable questions; covered F1 is also
+  reported so those errors receive zero utility.
 - Citation precision uses vocabulary overlap against gold evidence — strict,
   but it cannot credit correct paraphrase.
 - No human evaluation.
@@ -236,8 +254,11 @@ eval/
   run_eval.py      evaluation matrix runner
   sweep.py         abstention threshold sweep / risk-coverage
   abstention_signals.py  offline comparison of abstention signals
+  provenance.py    stable run/cache fingerprints
+  threshold_protocol.py document-grouped calibration and held-out evaluation
+  compare_results.py historical-to-clean record verification
 tests/
-  test_core.py     12 tests, no model downloads
+  ...              38 tests, no model downloads
 ```
 
 ---
@@ -252,8 +273,9 @@ was a data-leak bug.
 citation cannot be verified, and an unauditable citation is worse than none.
 
 **Why the reader runs on CPU.** The MPS backend aborts on this workload
-(Metal command-buffer assertion). A base-size encoder is fast enough on
-Apple silicon and CPU results are deterministic across machines.
+(Metal command-buffer assertion). Exact model revisions, package versions and
+platform are fingerprinted; identical local smoke runs reproduced all scientific
+fields, while latency is treated as environment-dependent.
 
 **Why `thinkingBudget: 0`.** Gemini 3.x spends its output budget on
 `thoughtsTokenCount` by default and can return an empty candidate. The client

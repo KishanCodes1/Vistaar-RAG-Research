@@ -17,13 +17,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY vistaar/ ./vistaar/
 COPY app.py .
 
-# Pre-download the embedding and reader models so the first request is fast.
+# Pre-download the exact revisions used by the runtime and evaluation manifest.
 RUN python -c "\
-from sentence_transformers import SentenceTransformer; \
-SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', device='cpu'); \
+from sentence_transformers import CrossEncoder, SentenceTransformer; \
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering; \
-AutoTokenizer.from_pretrained('deepset/roberta-base-squad2'); \
-AutoModelForQuestionAnswering.from_pretrained('deepset/roberta-base-squad2')"
+from vistaar.config import Settings; \
+s=Settings(api_key=''); \
+SentenceTransformer(s.embedding_model, revision=s.embedding_revision, device='cpu'); \
+CrossEncoder(s.reranker_model, revision=s.reranker_revision, device='cpu'); \
+AutoTokenizer.from_pretrained(s.reader_model, revision=s.reader_revision); \
+AutoModelForQuestionAnswering.from_pretrained(s.reader_model, revision=s.reader_revision)"
 
 EXPOSE 8000
 

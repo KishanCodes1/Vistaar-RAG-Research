@@ -1,0 +1,31 @@
+{
+  "schema": "vistaar-full-qasper-readiness-v1",
+  "decision": "pass",
+  "branch": "main",
+  "milestone_1_commit": "e87fa0c075ab57bfdfdb7d7ce5750ae398b17f09",
+  "preflight_tests_passed": 35,
+  "dataset": {
+    "name": "qasper-validation",
+    "sha256": "089781b91c337d348dd9e8b57cc8adc100ed2d9cab84a6127402bcccf1559222",
+    "papers": 281,
+    "raw_questions": 1005,
+    "evaluable_questions": 1003,
+    "answerable": 943,
+    "unanswerable": 60,
+    "dropped_no_gold": 2,
+    "expected_unique_chunks": 21516
+  },
+  "evaluation": {
+    "configurations": 5,
+    "expected_records": 5015,
+    "compatible_cache_existed_before_launch": false,
+    "reader_backend": "local",
+    "hosted_api_required": false,
+    "estimated_api_requests": 0,
+    "estimated_api_cost_usd": 0,
+    "estimated_runtime_minutes": [60, 75],
+    "estimated_peak_ram_gib": 2,
+    "estimated_storage_mib": [150, 250]
+  },
+  "output": "results/milestone3/full-qasper-validation-ae-v1"
+}

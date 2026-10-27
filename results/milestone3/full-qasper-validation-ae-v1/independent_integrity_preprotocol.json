@@ -1,0 +1,122 @@
+{
+  "schema": "vistaar-full-qasper-independent-integrity-v1",
+  "run_fingerprint": "77f3ef35739c9619e11aea426a76264332a3b53960c430c85c90ad6ba609dfa1",
+  "terminal_artifacts": {
+    "manifest_status": "complete",
+    "records_ends_newline": true,
+    "malformed_json_lines": 0,
+    "record_count": 5015,
+    "expected_record_count": 5015
+  },
+  "scope": {
+    "papers": 281,
+    "questions": 1003,
+    "answerable": 943,
+    "unanswerable": 60,
+    "dropped_no_gold": 2,
+    "dataset_sha256": "089781b91c337d348dd9e8b57cc8adc100ed2d9cab84a6127402bcccf1559222"
+  },
+  "records_by_config": {
+    "A: dense": {
+      "records": 1003,
+      "unique_question_ids": 1003,
+      "matches_expected_question_set": true,
+      "missing_required_fields": 0,
+      "invalid_scores": 0,
+      "raw_label_or_doc_mismatches": 0,
+      "missing_predictions": 0,
+      "empty_predictions": 139,
+      "invalid_chunk_provenance": 0,
+      "duplicate_retrieval_lists": 0,
+      "cache_metadata_mismatches": 0,
+      "gold_label_conflicts": 0
+    },
+    "B: dense+abstain": {
+      "records": 1003,
+      "unique_question_ids": 1003,
+      "matches_expected_question_set": true,
+      "missing_required_fields": 0,
+      "invalid_scores": 0,
+      "raw_label_or_doc_mismatches": 0,
+      "missing_predictions": 0,
+      "empty_predictions": 0,
+      "invalid_chunk_provenance": 0,
+      "duplicate_retrieval_lists": 0,
+      "cache_metadata_mismatches": 0,
+      "gold_label_conflicts": 0
+    },
+    "C: hybrid": {
+      "records": 1003,
+      "unique_question_ids": 1003,
+      "matches_expected_question_set": true,
+      "missing_required_fields": 0,
+      "invalid_scores": 0,
+      "raw_label_or_doc_mismatches": 0,
+      "missing_predictions": 0,
+      "empty_predictions": 117,
+      "invalid_chunk_provenance": 0,
+      "duplicate_retrieval_lists": 0,
+      "cache_metadata_mismatches": 0,
+      "gold_label_conflicts": 0
+    },
+    "D: hybrid+rerank": {
+      "records": 1003,
+      "unique_question_ids": 1003,
+      "matches_expected_question_set": true,
+      "missing_required_fields": 0,
+      "invalid_scores": 0,
+      "raw_label_or_doc_mismatches": 0,
+      "missing_predictions": 0,
+      "empty_predictions": 134,
+      "invalid_chunk_provenance": 0,
+      "duplicate_retrieval_lists": 0,
+      "cache_metadata_mismatches": 0,
+      "gold_label_conflicts": 0
+    },
+    "E: full (hybrid+rerank+abstain)": {
+      "records": 1003,
+      "unique_question_ids": 1003,
+      "matches_expected_question_set": true,
+      "missing_required_fields": 0,
+      "invalid_scores": 0,
+      "raw_label_or_doc_mismatches": 0,
+      "missing_predictions": 0,
+      "empty_predictions": 0,
+      "invalid_chunk_provenance": 0,
+      "duplicate_retrieval_lists": 0,
+      "cache_metadata_mismatches": 0,
+      "gold_label_conflicts": 0
+    }
+  },
+  "cache": {
+    "exact_rows_match_output": true,
+    "counts": {
+      "A: dense": 1003,
+      "B: dense+abstain": 1003,
+      "C: hybrid": 1003,
+      "D: hybrid+rerank": 1003,
+      "E: full (hybrid+rerank+abstain)": 1003
+    }
+  },
+  "index": {
+    "namespaces": 281,
+    "stored_chunks": 21516,
+    "unique_chunk_ids": 21516,
+    "mismatched_namespaces": 0,
+    "isolated_path": "results/cache/eval/77f3ef35739c9619e11aea426a76264332a3b53960c430c85c90ad6ba609dfa1/index",
+    "legacy_store_used": false
+  },
+  "implementation_hash_mismatches": [],
+  "equivalent_config_checks": {
+    "A_vs_B_raw_retrieval_scores_match": true,
+    "D_vs_E_raw_retrieval_scores_match": true
+  },
+  "summary_errors": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "all_preprotocol_checks_passed": true
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "vistaar-milestone3-final-verification-v1",
+  "verified_at_utc": "2026-10-27T21:18:06.070206+00:00",
+  "run_fingerprint": "77f3ef35739c9619e11aea426a76264332a3b53960c430c85c90ad6ba609dfa1",
+  "completion": {
+    "manifest_status": "complete",
+    "expected_records": 5015,
+    "actual_records": 5015,
+    "expected_papers": 281,
+    "actual_papers": 281,
+    "expected_questions": 1003,
+    "actual_questions": 1003,
+    "errors": 0
+  },
+  "protocol": {
+    "matches_predeclared_plan": true,
+    "documents_disjoint": true,
+    "calibration_documents": 169,
+    "test_documents": 112,
+    "selected_threshold": 0.1
+  },
+  "checks": {
+    "independent_integrity": true,
+    "independent_metrics": true,
+    "analysis_verification": true,
+    "historical_preservation": true,
+    "tests_passed": 38,
+    "report_reconciled": true
+  },
+  "discrepancies": [],
+  "sha256": {
+    "results/milestone3/full-qasper-validation-ae-v1/records.jsonl": "e15f61ca7e3d938c6f6ba23c3e5e932c9e23f29ce5a16822378e01f91323f08f",
+    "results/milestone3/full-qasper-validation-ae-v1/summary.json": "c26003c01ee0c1723e6f5e1ea49ab07665df8961ce1534dbdadb0665c581df4a",
+    "results/milestone3/full-qasper-validation-ae-v1/run_manifest.json": "75147e7ca5d27f86fb863b09c27aef1e37351ad23db40888a96b451b88682834",
+    "results/milestone3/full-qasper-validation-ae-v1/sweep_E.json": "b474bbe7d12b95d2c158ff3b3781a510b4c3a5a33dcf0cee0a1dabd2c8d949a8",
+    "results/milestone3/full-qasper-validation-ae-v1/threshold_protocol/protocol.json": "eb0c5c47c07a86083195c5e78b3a6e1fcf5bb5dfc0b0ea304801b72bf06eae71",
+    "results/milestone3/full-qasper-validation-ae-v1/analysis/analysis.json": "1326d0493c07e326c5d39bfcc074fd0c7dc64aca3d9d392a70ef0d76c7eddb3d",
+    "docs/FULL_QASPER_EVALUATION.md": "052fd54fd0fc81ca5a66b21a149e23ced0479e8aa6ca7998f13396b70c4a3249"
+  },
+  "all_checks_passed": true
+}

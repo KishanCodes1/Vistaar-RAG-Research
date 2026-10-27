@@ -1,0 +1,58 @@
+{
+  "schema": "vistaar-heldout-baseline-differences-v1",
+  "threshold": 0.1,
+  "documents": 112,
+  "resamples": 5000,
+  "comparisons": {
+    "locked_minus_always_balanced_accuracy": {
+      "point": 0.06820773325230943,
+      "lower": -0.021379566924652874,
+      "upper": 0.14441747572815533
+    },
+    "locked_minus_default_balanced_accuracy": {
+      "point": 0.05177472807849949,
+      "lower": -0.012934893606915602,
+      "upper": 0.0922333341986398
+    },
+    "locked_minus_always_conditional_f1": {
+      "point": 0.0062351987922726676,
+      "lower": -0.009155867107143195,
+      "upper": 0.022592736829305647
+    },
+    "locked_minus_default_conditional_f1": {
+      "point": -0.005115894750620457,
+      "lower": -0.025025603254751002,
+      "upper": 0.014757701756858265
+    },
+    "locked_minus_always_covered_f1": {
+      "point": 0.006984876207807524,
+      "lower": -0.008147465677447252,
+      "upper": 0.022868332059304983
+    },
+    "locked_minus_default_covered_f1": {
+      "point": -0.004417149290170225,
+      "lower": -0.023688449105854163,
+      "upper": 0.014656248024868137
+    },
+    "locked_minus_always_coverage": {
+      "point": -0.719767274660206,
+      "lower": -0.7596899224806202,
+      "upper": -0.6786678868223189
+    },
+    "locked_minus_default_coverage": {
+      "point": 0.14865486878665263,
+      "lower": 0.11557305759567066,
+      "upper": 0.18367480850607956
+    },
+    "locked_minus_always_answered_unanswerable": {
+      "point": -17.064,
+      "lower": -25.0,
+      "upper": -10.0
+    },
+    "locked_minus_default_answered_unanswerable": {
+      "point": 1.0094,
+      "lower": 0.0,
+      "upper": 3.0
+    }
+  }
+}

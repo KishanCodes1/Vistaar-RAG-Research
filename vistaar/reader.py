@@ -35,22 +35,33 @@ class LocalReader:
     _instance: "LocalReader | None" = None
     _lock = threading.Lock()
 
-    def __init__(self, model_name: str = "deepset/roberta-base-squad2"):
+    def __init__(
+        self,
+        model_name: str = "deepset/roberta-base-squad2",
+        revision: str | None = None,
+    ):
         import torch
         from transformers import AutoModelForQuestionAnswering, AutoTokenizer
 
         self.model_name = model_name
+        self.revision = revision
         self.torch = torch
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForQuestionAnswering.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)
+        self.model = AutoModelForQuestionAnswering.from_pretrained(
+            model_name, revision=revision
+        )
         self.model.eval()
         torch.set_num_threads(max(1, torch.get_num_threads()))
 
     @classmethod
-    def get(cls, model_name: str) -> "LocalReader":
+    def get(cls, model_name: str, revision: str | None = None) -> "LocalReader":
         with cls._lock:
-            if cls._instance is None or cls._instance.model_name != model_name:
-                cls._instance = cls(model_name)
+            if (
+                cls._instance is None
+                or cls._instance.model_name != model_name
+                or cls._instance.revision != revision
+            ):
+                cls._instance = cls(model_name, revision)
             return cls._instance
 
     def answer(self, question: str, hits: list[Hit], max_passages: int = 4) -> ReaderOutput:

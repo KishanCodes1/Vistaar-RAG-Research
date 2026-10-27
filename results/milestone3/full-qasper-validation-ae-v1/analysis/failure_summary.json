@@ -1,0 +1,31 @@
+{
+  "schema": "vistaar-full-qasper-failure-summary-v1",
+  "threshold": 0.1,
+  "test": {
+    "questions": 403,
+    "answerable": 383,
+    "unanswerable": 20
+  },
+  "counts": {
+    "answerable_retrieval_recall_zero": 13,
+    "answerable_retrieval_recall_below_0_1": 51,
+    "answerable_f1_zero": 313,
+    "answerable_abstained_locked": 273,
+    "answerable_abstained_despite_best_gold_f1_1": 6,
+    "unanswerable_answered_locked": 3,
+    "unanswerable_answered_default_0_5": 2,
+    "answerable_answered_locked": 110,
+    "answerable_answered_default_0_5": 51
+  },
+  "rates": {
+    "answerable_retrieval_recall_zero": 0.033942558746736295,
+    "answerable_retrieval_recall_below_0_1": 0.13315926892950392,
+    "answerable_f1_zero": 0.8172323759791122,
+    "answerable_abstained_locked": 0.7127937336814621,
+    "answerable_abstained_despite_best_gold_f1_1": 0.015665796344647518,
+    "unanswerable_answered_locked": 0.15,
+    "unanswerable_answered_default_0_5": 0.1,
+    "answerable_answered_locked": 0.28720626631853785,
+    "answerable_answered_default_0_5": 0.13315926892950392
+  }
+}

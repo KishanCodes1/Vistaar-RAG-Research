@@ -48,8 +48,11 @@ class Settings:
     fallback_models: tuple[str, ...] = ("gemini-3.8-flash",)
 
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_revision: str = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
     reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    reranker_revision: str = "233902d25c440f23af6f7d6e94d2946bac0bee0a"
     reader_model: str = "deepset/roberta-base-squad2"
+    reader_revision: str = "adc3b06f79f797d1c575d5479d6f5efe54a9e3b4"
 
     # "local" = offline extractive reader (default, reproducible)
     # "gemini" = hosted generative model (needs API quota)

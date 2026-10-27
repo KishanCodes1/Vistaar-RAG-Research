@@ -15,8 +15,10 @@ from eval.metrics import (
     token_f1,
 )
 from eval.qasper import normalize
+from eval.sweep import sweep
 from vistaar.config import Settings, load_env
 from vistaar.index import Namespace, reciprocal_rank_fusion
+from vistaar.pipeline import ABSTAIN_MESSAGE, Answer
 from vistaar.text import chunk_document, Document, Page, extract_document
 
 
@@ -74,6 +76,31 @@ def test_token_f1_known_values():
 def test_best_f1_picks_best_reference():
     refs = ["completely unrelated text here", "the answer is 42"]
     assert best_f1("the answer is 42", refs) == pytest.approx(1.0)
+
+
+def test_empty_raw_answer_is_not_replaced_by_abstention_message():
+    answer = Answer(
+        answer=ABSTAIN_MESSAGE,
+        raw_answer="",
+        abstained=True,
+        citations=[],
+        scores={"confidence": 0.0},
+        latency_s=0.0,
+    )
+    assert answer.to_dict()["raw_answer"] == ""
+
+    result = sweep(
+        [
+            {
+                "answerable": True,
+                "prediction": ABSTAIN_MESSAGE,
+                "raw_prediction": "",
+                "gold": "could find document",
+                "scores": {"confidence": 0.0},
+            }
+        ]
+    )
+    assert result["curve"][0]["selective_f1"] == 0.0
 
 
 def test_citation_scores_reward_correct_passage():

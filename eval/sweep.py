@@ -16,6 +16,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .provenance import hash_file
+
 
 def load_records(path: Path) -> list[dict]:
     records = []
@@ -64,6 +66,9 @@ def sweep(records: list[dict], thresholds: list[float] | None = None) -> dict:
     scored = []
     for r in records:
         conf = float(r.get("scores", {}).get("confidence", 0.0))
+        raw_prediction = (
+            r["raw_prediction"] if "raw_prediction" in r else r["prediction"]
+        )
         scored.append(
             {
                 "confidence": conf,
@@ -71,7 +76,7 @@ def sweep(records: list[dict], thresholds: list[float] | None = None) -> dict:
                 # Use the reader's raw span, not the abstention message, so that
         # selective F1 measures answer quality rather than being zeroed out by
         # the very decision being swept.
-        "f1": f1(r.get("raw_prediction") or r["prediction"], r["gold"])
+        "f1": f1(raw_prediction, r["gold"])
         if r["answerable"] and r["gold"]
         else 0.0,
             }
@@ -160,6 +165,11 @@ def main() -> None:
     parser.add_argument("--records", default="results/records.jsonl")
     parser.add_argument("--config", default="E")
     parser.add_argument("--out", default="results")
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="explicitly replace existing sweep artifacts",
+    )
     args = parser.parse_args()
 
     records = load_records(Path(args.records))
@@ -168,11 +178,23 @@ def main() -> None:
         raise SystemExit(f"No records for config prefix {args.config!r}")
 
     result = sweep(records)
+    result["source"] = {
+        "records": str(args.records),
+        "records_sha256": hash_file(args.records),
+        "config_prefix": args.config,
+    }
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / f"sweep_{args.config}.json").write_text(json.dumps(result, indent=2))
+    json_path = out_dir / f"sweep_{args.config}.json"
+    markdown_path = out_dir / f"sweep_{args.config}.md"
+    if not args.overwrite and (json_path.exists() or markdown_path.exists()):
+        raise SystemExit(
+            f"Refusing to overwrite existing sweep in {out_dir}; "
+            "choose a new --out path or pass --overwrite explicitly"
+        )
+    json_path.write_text(json.dumps(result, indent=2))
     text = to_markdown(result, args.config)
-    (out_dir / f"sweep_{args.config}.md").write_text(text)
+    markdown_path.write_text(text)
     print(text)
 
 

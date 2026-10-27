@@ -5,7 +5,7 @@ question, so alternative abstention signals can be scored without re-running
 the model. This script reproduces the three-signal comparison reported in the
 paper:
 
-    confidence                 (reader logit margin)
+    confidence                 (sigmoid of reader logit margin)
     retrieval                  (top retrieval score)
     confidence + z(retrieval)  (simple standardised combination)
 
@@ -72,7 +72,7 @@ def to_markdown(result: dict) -> str:
         "",
         "| Signal | AUC |",
         "|---|---|",
-        f"| Reader confidence (logit margin) | **{result['auc']['confidence']:.4f}** |",
+        f"| Reader confidence (sigmoid logit margin) | **{result['auc']['confidence']:.4f}** |",
         f"| Retrieval score alone | {result['auc']['retrieval']:.4f} |",
         "| Confidence + z-scored retrieval score | "
         f"{result['auc']['confidence_plus_z_retrieval']:.4f} |",

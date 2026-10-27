@@ -2,8 +2,9 @@
 
 **Project:** Vistaar — citation-grounded RAG with thresholded abstention
 **Repository:** `/Users/kishansingh/Documents/STUDY/Research Paper/Vistaar` (git repo, branch `main`; milestone-1 commit on top of the initial import)
-**State captured:** 2026-10-27, 21:15 local (Milestone 1 reconciliation applied)
-**Status:** working system + completed evaluation + paper draft v1.1. Nothing is running.
+**State captured:** 2026-10-28 (Milestone 3 full-QASPER verification complete)
+**Status:** full 281-paper QASPER A–E evaluation independently verified. CUAD
+has not started. Nothing is running; no Milestone 2/3 changes are committed.
 
 ---
 
@@ -62,13 +63,20 @@ detected by regex and treated as having no extractable answer text.
 | Abst-Acc | share of questions where answer/abstain matched gold answerability |
 | Balanced Acc | mean of per-class correct rates (added because the answerable base rate is 96%) |
 | AUC | confidence score's ability to separate answerable from unanswerable (rank-based, tie-corrected) |
-| Selective F1 | mean raw-answer F1 over questions the system chose to answer at a given threshold |
+| Conditional F1 | first-gold raw-answer F1 over covered questions known to be answerable |
+| Covered F1 | F1 over all covered questions, assigning zero to answered-unanswerable questions |
 | Latency | wall-clock seconds per question, CPU only |
 
-Statistics: 95% percentile bootstrap intervals (1,000 resamples, seed 13); paired
-bootstrap tests with differences **centred under the null**.
+Statistics: answer F1 uses 1,000 percentile-bootstrap resamples; held-out
+abstention uses 2,000 document-cluster resamples; paired bootstrap differences
+are **centred under the null**.
 
-### 1.4 What was executed
+### 1.4 Historical Milestone 1 evaluations — preserved, not current
+
+The values in this subsection are retained only as an audit trail. Their shared
+index accumulated duplicate chunks, their cache lacked fingerprints, and the
+natural 0.019/4.4× selective-F1 claim used a stale metric artifact. Do not cite
+them as current results; see §1.5 and `docs/ABSTENTION_AUDIT.md`.
 
 **Run 1 — main ablation** (`--papers 40`): 40 papers, **127 questions (122 answerable,
 5 unanswerable)**, **7,391 chunks** indexed once and shared across configs.
@@ -128,6 +136,79 @@ metric known-values, bootstrap interval sanity, rejected file types).
 `/upload` 200, `/ask` returned `0.0795` with confidence 0.992 and 1 citation,
 nonsense question correctly abstained, `DELETE /namespace/{ns}` 200,
 `.exe` upload → 400.
+
+### 1.5 Current verified evaluations
+
+**Clean natural ablation** (`results/milestone2/natural-clean-final/`): 40 papers,
+127 questions (122 answerable, 5 unanswerable), **2,987 stored / 2,987 unique
+chunks**, zero errors. Run fingerprint `dab15af5d3ab...`.
+
+| Config | F1 [95% CI] | EM | Cite-P | Cite-R | Ret-R | Abst-Acc | Over-abst | Lat (s) |
+|---|---|---|---|---|---|---|---|---|---|
+| A: dense | 0.0604 [0.038, 0.087] | 0.0000 | 0.079 | 0.114 | 0.227 | 0.961 | 0.000 | 0.64 |
+| B: dense+abstain | 0.0604 [0.038, 0.087] | 0.0000 | 0.079 | 0.114 | 0.227 | 0.158 | 0.877 | 0.74 |
+| C: hybrid | 0.0719 [0.045, 0.103] | 0.0082 | 0.095 | 0.133 | **0.267** | 0.961 | 0.000 | 0.98 |
+| D: hybrid+rerank | 0.0695 [0.043, 0.101] | 0.0164 | 0.118 | 0.143 | 0.245 | 0.961 | 0.000 | 1.16 |
+| E: full | 0.0695 [0.043, 0.101] | 0.0164 | 0.118 | 0.143 | 0.245 | 0.173 | 0.861 | 1.15 |
+
+Paired retrieval comparisons: A→C +0.0400 (`p < 0.0001`); C→D −0.0221
+(`p = 0.0014`); A→E +0.0179 (`p = 0.0218`). F1 changes are not significant.
+
+**Clean negative-enriched config E**
+(`results/milestone2/balanced-clean-final/`): 51 documents, 231 questions
+(171/60), **3,784/3,784 unique chunks**, zero errors. F1 0.0553, EM 0.0058,
+Cite-P 0.0346, Cite-R 0.1029, Ret-R 0.1830. Run fingerprint
+`5b6f98b8586c...`. The CLI retains `--balanced` for compatibility, but this
+sample is 74% answerable and is now called negative-enriched.
+
+**Descriptive sweeps:** natural AUC 0.6459; negative-enriched AUC 0.6181 and
+in-sample peak balanced accuracy 0.5662 at threshold 0.10. These do not select a
+test operating point.
+
+**Document-disjoint threshold protocol:** threshold 0.25 is selected on 31
+negative-enriched calibration documents (101/40) and locked for 20 held-out
+documents (70/20). Test AUC is 0.6443 [0.5322, 0.7467], balanced accuracy is
+0.5179 [0.4289, 0.5938], and coverage is 0.1778. The interval includes chance.
+The natural held-out partition has only two negatives and is diagnostic only.
+
+**Verification:** `python -m pytest tests/ -q` → **35 passed**.
+`results/milestone2/integrity_verification.json` confirms record counts,
+manifests, unique chunks, cache metadata, record-only summary/sweep reproduction,
+and disjoint calibration/test documents.
+
+### 1.6 Full-QASPER evaluation — current primary result
+
+Authoritative output: `results/milestone3/full-qasper-validation-ae-v1/`.
+Run fingerprint: `77f3ef35739c...`. The validation split contains 281 papers and
+1,003 evaluable questions (943 answerable / 60 unanswerable; 2 dropped), indexed
+as **21,516 stored / 21,516 unique chunks**. All 5,015 records completed with
+zero errors in 3,222.5 seconds; peak RSS was 1,874 MiB.
+
+| Config | F1 [document-cluster 95% interval] | EM | Cite-P | Cite-R | Ret-R |
+|---|---:|---:|---:|---:|---:|
+| A: dense | 0.0562 [0.0472, 0.0651] | 0.0032 | 0.0409 | 0.1195 | 0.2283 |
+| B: dense+abstain | 0.0562 [0.0472, 0.0651] | 0.0032 | 0.0409 | 0.1195 | 0.2283 |
+| C: hybrid | 0.0624 [0.0530, 0.0728] | 0.0064 | 0.0568 | 0.1409 | **0.2671** |
+| D: hybrid+rerank | 0.0625 [0.0523, 0.0729] | 0.0095 | 0.0608 | 0.1352 | 0.2392 |
+| E: full | 0.0625 [0.0523, 0.0729] | 0.0095 | 0.0608 | 0.1352 | 0.2392 |
+
+Paired document bootstrap: hybrid improves retrieval recall by +0.0388
+[0.0332, 0.0448]; reranking reduces it by −0.0279 [−0.0349, −0.0212]. These
+effects persist on the 241 papers outside the prior 40-paper run.
+
+The predeclared split uses 169 calibration papers (600 questions, 560/40) and
+112 held-out papers (403 questions, 383/20). Calibration selects threshold 0.10.
+Held-out AUC is 0.6636 [0.5286, 0.7912], balanced accuracy 0.5686
+[0.4773, 0.6441], and coverage 0.2804. The balanced-accuracy, conditional-F1 and
+covered-F1 differences versus always-answer all have document-bootstrap
+intervals crossing zero. The system answers 3/20 unanswerable questions and
+declines 273/383 answerable questions.
+
+All independent checks pass: exact counts, unique index, cache/source/model
+fingerprints, chunk provenance, summary/sweep reproduction, predeclared split,
+2,000 bootstrap intervals, and 635/635 scientifically identical records on the
+Milestone 2 overlap. Final test suite: **38 passed**. See
+`docs/FULL_QASPER_EVALUATION.md`.
 
 ---
 
@@ -215,27 +296,25 @@ substring matching. This is documented in the paper as a limitation.
 2. **Uncentred paired bootstrap.** Resampling raw paired differences compares the
    observed mean against itself and returns **p ≈ 0.5 by construction**. Fixed by
    centring differences under the null; the corrected test is what produced the
-   p < 0.001 and p = 0.002 results above.
+   clean paired results p < 0.0001 and p = 0.0014.
 
 ### 2.10 Substantive findings
 
 - **Hybrid retrieval significantly improves evidence recall** over dense-only
-  (0.184 → 0.267, p < 0.001). Largest, most reliable effect in the study.
+  (0.227 → 0.267, p < 0.0001). Largest, most reliable effect in the study.
 - **The cross-encoder reranker significantly *hurts* evidence recall**
-  (0.267 → 0.247, p = 0.002) while raising answer F1 (not significant). Domain
+  (0.267 → 0.245, p = 0.0014) without improving answer F1. Domain
   mismatch: MS MARCO web passages vs. reference-dense scientific paragraphs
   containing `BIBREFnn` placeholders. This is the paper's negative result.
-- **F1 0.04–0.08 is a metric mismatch, not a broken system.** QASPER gold answers are
+- **F1 0.06–0.07 is partly a metric mismatch.** QASPER gold answers are
   abstractive (`multilingual NMT (MNMT) BIBREF19`); the reader is extractive and
-  returns the shorter span (`multilingual NMT approaches`). The same system reaches
-  0.696 AUC and a 4.4× selective-F1 gain on the natural sample, but only 0.617 AUC
-  and a 1.4× gain on the class-balanced slice — the latter is the primary result.
-- **Abstention is real but weak, and the natural-sample AUC is optimistic.** With 5
-  negatives, AUC = 0.696; on 60 balanced negatives, AUC = **0.617** and peak balanced
-  accuracy is only **0.566**. The paper reports both, with 0.696 labelled as an
-  optimistic small-sample estimate; the 0.696 is not presented alone.
-- **A fixed threshold of 0.5 over-abstains** (0.844) because the answerable prior is
-  96%; the threshold has to be selected from measured balanced accuracy, not assumed.
+  returns the shorter span (`multilingual NMT approaches`).
+- **Held-out abstention is weak.** The negative-enriched locked threshold reaches
+  balanced accuracy 0.5179 [0.4289, 0.5938], statistically compatible with chance.
+  The historical 0.019 baseline and 4.4× gain are invalid and retained only in the
+  audit trail.
+- **A fixed threshold of 0.5 over-abstains** (0.861 natural; 0.883 enriched).
+  Thresholds must be selected on calibration documents and locked before test.
 
 ### 2.11 Environment constraints
 
@@ -260,9 +339,9 @@ The repository started empty (`.git` only, zero commits), so every file below is
 | File | Purpose |
 |---|---|
 | `vistaar/__init__.py` | package exports (`Settings`, `RAGPipeline`, `RetrievalConfig`) |
-| `vistaar/config.py` | `Settings` (frozen dataclass), env loading with whitespace/quote normalisation, reader switch |
+| `vistaar/config.py` | frozen settings, env normalisation, reader switch and exact model revisions |
 | `vistaar/text.py` | PDF/text extraction, boundary-aware recursive chunking with provenance (`doc_id`, `page`, `chunk_id`, `ordinal`) |
-| `vistaar/index.py` | `Embedder` (CPU), namespaced `Namespace` (FAISS + BM25, `RLock`), `Store` with save/load/`reset_namespace`, `reciprocal_rank_fusion`, `Reranker` (CPU) |
+| `vistaar/index.py` | namespaced FAISS/BM25, strict duplicate rejection, document upsert, validated snapshot persistence, RRF and reranker |
 | `vistaar/reader.py` | `LocalReader`: RoBERTa-SQuAD2 span head, sliding window, sigmoid logit-margin confidence, span-offset citations |
 | `vistaar/generate.py` | Gemini REST client: `thinkingBudget: 0`, ordered fallbacks, retry/backoff, token-bucket rate limiter, tolerant JSON parsing |
 | `vistaar/pipeline.py` | `RAGPipeline` + `RetrievalConfig` + `Answer` (incl. `raw_answer`); per-call config so ablations share one index |
@@ -275,28 +354,36 @@ The repository started empty (`.git` only, zero commits), so every file below is
 | `eval/__init__.py` | package marker |
 | `eval/qasper.py` | QASPER parquet loader; pointer-token filter; gold answers + evidence + answerability |
 | `eval/metrics.py` | EM, token F1, `evidence_coverage`, citation P/R, `bootstrap_ci`, `paired_bootstrap_p` (null-centred), `summarize`, `to_markdown` |
-| `eval/run_eval.py` | matrix runner: `--papers --limit --workers --out --only --balanced`; per-config JSONL cache; `READER_PASSAGES = 4` |
+| `eval/run_eval.py` | matrix runner with isolated indices, run manifests, fingerprinted caches, integrity checks and resource metadata |
 | `eval/sweep.py` | threshold sweep → risk–coverage curve, AUC, balanced accuracy, selective F1 |
 | `eval/abstention_signals.py` | offline comparison of confidence, retrieval, and combined abstention signals |
+| `eval/provenance.py` | canonical SHA-256 run/config/item fingerprints and fail-closed cache validation |
+| `eval/threshold_protocol.py` | document-disjoint calibration/test and grouped-CV diagnostics |
+| `eval/compare_results.py` | record-only reproduction and historical-to-clean comparison |
+| `eval/full_qasper_analysis.py` | full-run cluster intervals, overlap verification and failure extraction |
 
 ### Tests, data, results
 | File | Purpose |
 |---|---|
-| `tests/test_core.py` | 12 unit tests, no model downloads |
+| `tests/` | 38 unit/regression tests, no model downloads |
 | `data/raw/qasper_validation.parquet` | QASPER validation (gitignored) |
 | `data/raw/cuad_v1.json` | CUAD v1, 510 contracts (gitignored, **not yet used**) |
-| `results/summary.json`, `results/table.md`, `results/records.jsonl` | main ablation outputs |
-| `results/sweep_E.json`, `results/sweep_E.md` | main-run abstention sweep (AUC 0.6959) |
-| `results/balanced/summary.json`, `table.md`, `records.jsonl` | balanced run outputs |
-| `results/balanced/sweep_E.json`, `sweep_E.md` | balanced sweep (AUC 0.6172) |
-| `results/balanced/signals.json` | signal comparison (confidence 0.6172 vs retrieval 0.5830 vs combined 0.5832) |
-| `results/cache/{A,B,C,D,E}.jsonl` | per-question resume cache (gitignored) |
+| `results/`, `results/balanced/` | preserved historical Milestone 1 outputs; not current claims |
+| `results/milestone2/natural-clean-final/` | authoritative clean natural A–E run and sweep |
+| `results/milestone2/balanced-clean-final/` | authoritative negative-enriched E run, sweep, signals and threshold protocol |
+| `results/milestone2/comparison-final/` | historical-to-clean JSON/Markdown comparison |
+| `results/milestone2/integrity_verification.json` | machine verification of final artifacts |
+| `results/cache/eval/<run fingerprint>/` | isolated indices and validated per-config caches (gitignored) |
+| `results/milestone3/full-qasper-validation-ae-v1/` | full 281-paper run, sweep, threshold protocol and independent analyses |
 
 ### Documentation and delivery
 | File | Purpose |
 |---|---|
-| `paper/PAPER.md` | full draft v1.1: balanced abstention as primary, natural-sample AUC labelled optimistic, verified signal comparison |
+| `paper/PAPER.md` | draft v1.2 with clean results and held-out threshold protocol |
 | `docs/AUDIT.md` | 23 defects in the original codebase with fixed/open status |
+| `docs/ABSTENTION_AUDIT.md` | independent Milestone 1 scientific audit |
+| `docs/MILESTONE2_REPORT.md` | integrity fixes, clean comparisons, protocol and scaling recommendation |
+| `docs/FULL_QASPER_EVALUATION.md` | independently verified full-run report and next-step recommendation |
 | `README.md` | usage, architecture, API, metrics definitions, results table, limitations |
 | `app.py` | ASGI entrypoint (`uvicorn app:app`) |
 | `requirements.txt` | fully pinned dependency set |
@@ -337,25 +424,39 @@ Completed in this milestone:
 - Created the milestone commit:
   `feat(milestone-1): reconcile paper and readme with balanced abstention metrics and signal verification`.
 
-Milestone 2 remains next.
+Milestone 1's numerical claims were subsequently audited; §1.4 preserves them as
+history rather than current evidence.
 
-### Milestone 2 — Add the legal/contract domain (CUAD), or scope the paper explicitly
+### Milestone 2 — Evaluation integrity and reproducibility — ✅ completed
 
-`data/raw/cuad_v1.json` is already downloaded (510 contracts, 20,910 QA pairs, 14,208
-`is_impossible`) but unused. Add `eval/cuad.py` (SQuAD-format loader using
-`answer_start` offsets, `is_impossible` → unanswerable) and a retrieval-only ablation
-(dense vs hybrid vs hybrid+rerank, depth 4) over ~40–60 contracts, plus a
-class-balanced abstention subset (~100 answerable / 100 impossible). This yields a
-genuine second-domain result and tests whether the reranker's negative effect
-reproduces on short-clause legal text — the most interesting open question in the
-project. If it cannot be completed cleanly, state in the paper that evaluation is
-single-domain and drop the cross-domain claim.
+- Fixed duplicate index accumulation with strict append and document upsert.
+- Added exact model revisions and run/config/item fingerprints.
+- Isolated evaluation indices/caches and preserved every historical artifact.
+- Added smoke rerun, cache invalidation and cross-run isolation tests.
+- Reran natural and negative-enriched samples from fresh indices.
+- Added document-disjoint threshold calibration/test and grouped CV.
+- Corrected the stale 0.019/4.4× claim and updated paper/README/state.
+- Final integrity verification passes; see `docs/MILESTONE2_REPORT.md`.
 
-### Milestone 3 — Scale the evaluation and harden for production
+No commit was created automatically.
 
-Rerun the ablation on the **full 281-paper split** with two bootstrap seeds instead of
-the current 40-paper sample, so the confidence intervals (currently ±0.03 on F1) and
-the reranker result are stable enough to defend in review. In parallel close the
+### Milestone 3 — Controlled full-QASPER evaluation — ✅ completed
+
+- Completed all 5,015 A–E records over 281 papers and verified them independently.
+- Preserved the predeclared paper split and selected threshold only on calibration.
+- Added document-cluster aggregate and paired uncertainty estimates.
+- Confirmed the hybrid retrieval gain and reranker retrieval loss at full scale.
+- Found no robust held-out abstention utility improvement over always-answer.
+- Added failure and label-sensitivity analyses and reconciled the final report.
+- No commit or push was performed.
+
+### Milestone 4 — Add the legal/contract domain (CUAD), or scope explicitly
+
+`data/raw/cuad_v1.json` is downloaded but unused. After the controlled QASPER run,
+add a CUAD loader and independently fingerprinted retrieval/abstention evaluation,
+or retain the explicit single-domain limitation.
+
+In parallel close the
 production gaps already listed in `docs/AUDIT.md`: proxy-aware rate limiting
 (`X-Forwarded-For`), authentication/tenant isolation beyond session namespaces,
 OCR for scanned PDFs, and a Docker build + CI run to prove `requirements.txt`
@@ -368,21 +469,20 @@ resolves from scratch.
 ```bash
 cd "/Users/kishansingh/Documents/STUDY/Research Paper/Vistaar"
 
-./.venv/bin/python -m pytest tests/ -q            # 12 tests, ~0.3s
-./.venv/bin/python -m eval.run_eval --papers 40 --workers 2   # cached: near-instant
-./.venv/bin/python -m eval.sweep --config E
-./.venv/bin/python -m eval.sweep --records results/balanced/records.jsonl --config E --out results/balanced
-./.venv/bin/python -m eval.abstention_signals --records results/balanced/records.jsonl --config E --out results/balanced/signals.json
+./.venv/bin/python -m pytest tests/ -q            # 38 tests
+./.venv/bin/python -m eval.run_eval --papers 40 --workers 2 --out <new-output-dir>
+./.venv/bin/python -m eval.sweep --records <new-output-dir>/records.jsonl --config E --out <new-output-dir>
+./.venv/bin/python -m eval.threshold_protocol --records <new-output-dir>/records.jsonl --config E --out <new-output-dir>/threshold_protocol
 ./.venv/bin/uvicorn app:app --reload              # http://127.0.0.1:8000
 ```
 
 Notes for whoever resumes:
 
-- The per-question cache in `results/cache/` is keyed by `config → question_id` and is
-  **shared across runs**; `results/balanced/records.jsonl` therefore reuses config-E
-  rows produced during the main run. That is intentional (identical model and config),
-  but it means `results/cache/E.jsonl` holds more rows (324) than either run alone.
-- `rm -rf results/cache` forces a full re-evaluation (~4 min per config on 127
-  questions, ~0.9 s/question CPU-bound).
+- Never reuse or overwrite `results/` or `results/balanced/`; they are the
+  checksummed historical audit trail.
+- New caches live under `results/cache/eval/<run fingerprint>/`. Any relevant
+  dataset, document, code, model, prompt or config change creates a new run path.
+- `run_eval` refuses non-empty output directories; choose a new path for every
+  experiment. Identical inputs can safely reuse their fingerprinted cache.
 - If the Gemini path is ever needed: the quota resets daily at 20 requests. Verify
   `thinkingConfig.thinkingBudget = 0` is still present before debugging anything else.

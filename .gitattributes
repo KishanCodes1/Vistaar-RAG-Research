@@ -1,0 +1,2 @@
+# Markdown reports use two trailing spaces for intentional hard line breaks.
+*.md whitespace=-trailing-space

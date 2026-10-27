@@ -1,0 +1,22 @@
+{
+  "manifest_complete": true,
+  "record_count": 5015,
+  "expected_record_count": 5015,
+  "unique_question_ids_per_config": true,
+  "index_chunks": 21516,
+  "index_unique_chunks": 21516,
+  "index_duplicate_chunks": 0,
+  "duplicate_retrieval_lists": 0,
+  "cache_metadata_matches_run": true,
+  "implementation_hashes_match": true,
+  "rerank_sources_valid": true,
+  "chunk_provenance_valid": true,
+  "max_summary_rounding_difference": 0.0,
+  "sweep_matches_records": true,
+  "protocol_source_matches_records": true,
+  "protocol_matches_predeclared_plan": true,
+  "threshold_documents_disjoint": true,
+  "threshold_all_documents_covered": true,
+  "errors": 0,
+  "all_checks_passed": true
+}

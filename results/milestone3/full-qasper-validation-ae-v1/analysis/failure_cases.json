@@ -1,0 +1,656 @@
+{
+  "threshold": 0.1,
+  "test_questions": 403,
+  "answered_unanswerable_count": 3,
+  "abstained_answerable_count": 273,
+  "highest_confidence_answered_unanswerable": [
+    {
+      "question_id": "bfbd6040cb95b179118557352e8e3899ef25c525",
+      "doc_id": "1912.01852",
+      "question": "Are there elements, other than pitch, that can potentially result in out of key converted singing?",
+      "answerable": false,
+      "confidence": 0.99355,
+      "raw_prediction": "the converted singing voice can be easily out of key, showing that the existing approach can not model the pitch information precisely",
+      "gold_answers": [
+        ""
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1912.01852-84df3fc55cf1:0000",
+          "score": 3.2666163444519043,
+          "text_preview": "PitchNet: Unsupervised Singing Voice Conversion with Pitch Adversarial Network\n\nSinging voice conversion is to convert a singer's voice to another one's voice without changing singing content. Recent work shows that unsupervised singing voice conversion can be achieved with an autoencoder-based appr"
+        },
+        {
+          "chunk_id": "1912.01852-84df3fc55cf1:0001",
+          "score": -0.06877055764198303,
+          "text_preview": "the existing unsupervised singing voice conversion method proposed in [1] to achieve more accurate pitch translation and flexible pitch manipulation. Specifically, the proposed PitchNet added an adversarially trained pitch regression network to enforce the encoder network to learn pitch invariant ph"
+        }
+      ]
+    },
+    {
+      "question_id": "c262d3d1c5a8b6fef6b594d5eee86bc2b09e3baf",
+      "doc_id": "1908.07195",
+      "question": "Is the discriminator's reward made available at each step to the generator?",
+      "answerable": false,
+      "confidence": 0.6028,
+      "raw_prediction": "The generator is optimized with maximum likelihood estimation augmented by the discriminator's rewards instead of policy gradient",
+      "gold_answers": [
+        ""
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1908.07195-9ec56b04c047:0001",
+          "score": 0.5113511681556702,
+          "text_preview": "Most of the existing generative adversarial networks (GAN) for text generation suffer from the instability of reinforcement learning training algorithms such as policy gradient, leading to unstable performance. To tackle this problem, we propose a novel framework called Adversarial Reward Augmented "
+        },
+        {
+          "chunk_id": "1908.07195-9ec56b04c047:0024",
+          "score": -10.883949279785156,
+          "text_preview": "r e d b y L e a s t - S q u a r e G A N B I B R E F 2 5 , w e d e v i s e t h e l o s s f u n c t i o n a s f o l l o w s : D I S P L A Y F O R M 0\n\nT h i s l o s s f u n c t i o n f o r c e s t h e d i s c r i m i n a t o r t o a s s i g n h i g h e r r e w a r d s t o r e a l d a t a t h a n t o g"
+        }
+      ]
+    },
+    {
+      "question_id": "ceb4bac1f6c506b5dab37607354530faee02ccac",
+      "doc_id": "1910.05603",
+      "question": "What is the performance reported for the best models in the VLSP 2018 and VLSP 2019 challenges?",
+      "answerable": false,
+      "confidence": 0.42959,
+      "raw_prediction": "4.85% WER on the VLSP 2018 and 15.09% WER",
+      "gold_answers": [
+        ""
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1910.05603-f62fd64623ef:0002",
+          "score": 4.069330215454102,
+          "text_preview": "data. Evaluation on the VLSP 2019 ASR challenges showed that our system achieved 4.85% WER on the VLSP 2018 and 15.09% WER on the VLSP 2019 data sets.## IntroductionI n f o r m a l s p e e c h i s d i f f e r e n t f r o m f o r m a l s p e e c h , e s p e c i a l l y i n V i e t n a m e s e d u e t"
+        },
+        {
+          "chunk_id": "1910.05603-f62fd64623ef:0001",
+          "score": 2.7717185020446777,
+          "text_preview": "Automatic Speech Recognition (ASR) systems have been evolving quickly and reaching human parity in certain cases. The systems usually perform pretty well on reading style and clean speech, however, most of the available systems suffer from situation where the speaking style is conversation and in no"
+        }
+      ]
+    }
+  ],
+  "highest_f1_abstained_answerable": [
+    {
+      "question_id": "cfbec1ef032ac968560a7c76dec70faf1269b27c",
+      "doc_id": "1704.06194",
+      "question": "What does KBQA abbreviate for",
+      "answerable": true,
+      "confidence": 0.0062,
+      "raw_prediction": "Knowledge Base Question Answering",
+      "gold_answers": [
+        "Knowledge Base Question Answering"
+      ],
+      "answer_f1": 1.0,
+      "retrieval_recall": 0.3246753246753247,
+      "top_chunks": [
+        {
+          "chunk_id": "1704.06194-3dfa4a87d586:0000",
+          "score": 2.314314842224121,
+          "text_preview": "Improved Neural Relation Detection for Knowledge Base Question Answering\n\nRelation detection is a core component for many NLP applications including Knowledge Base Question Answering (KBQA). In this paper, we propose a hierarchical recurrent neural network enhanced by residual learning that detects "
+        },
+        {
+          "chunk_id": "1704.06194-3dfa4a87d586:0001",
+          "score": 0.8606466054916382,
+          "text_preview": "ction. Additionally, we propose a simple KBQA system that integrates entity linking and our proposed relation detector to enable one enhance another. Experimental results evidence that our approach achieves not only outstanding relation detection performance, but more importantly, it helps our KBQA "
+        }
+      ]
+    },
+    {
+      "question_id": "f428618ca9c017e0c9c2a23515dab30a7660f65f",
+      "doc_id": "1911.03059",
+      "question": "what ml based approaches were compared?",
+      "answerable": true,
+      "confidence": 0.02803,
+      "raw_prediction": "Multi Layer Perceptron",
+      "gold_answers": [
+        "Multi-Layer Perceptron (MLP), Naive Bayes Classifier (NBC), Support Vector Machine (SVM), Gradient Boosting Classifier (GBC), Stochastic Gradient Descent (SGD), K Nearest Neighbour (K-NN) and Random Forest (RF)",
+        "Multi-Layer Perceptron",
+        "Naive Bayes Classifier",
+        "Support Vector Machine",
+        "Gradient Boosting Classifier",
+        "Stochastic Gradient Descent",
+        "K Nearest Neighbour",
+        "Random Forest"
+      ],
+      "answer_f1": 1.0,
+      "retrieval_recall": 0.2808988764044944,
+      "top_chunks": [
+        {
+          "chunk_id": "1911.03059-5c9aea5c5226:0000",
+          "score": -2.5828986167907715,
+          "text_preview": "A Comprehensive Comparison of Machine Learning Based Methods Used in Bengali Question Classification\n\nQA classification system maps questions asked by humans to an appropriate answer category. A sound question classification (QC) system model is the pre-requisite of a sound QA system. This work demo"
+        },
+        {
+          "chunk_id": "1911.03059-5c9aea5c5226:0028",
+          "score": -7.5101141929626465,
+          "text_preview": "t e r r e s u l t t h a n t h e f i r s t s e t u p .## Implementation of the System ::: Classification Algorithms ::: Multi Layer Perceptron (MLP)\n\nM L P c o n t a i n s t h r e e l a y e r s - a n i n p u t l a y e r , a n o u t p u t l a y e r a n d s o m e h i d d e n l a y e r s . I n p u t l a"
+        }
+      ]
+    },
+    {
+      "question_id": "6bfba3ddca5101ed15256fca75fcdc95a53cece7",
+      "doc_id": "1910.09982",
+      "question": "What are the 18 propaganda techniques?",
+      "answerable": true,
+      "confidence": 0.09703,
+      "raw_prediction": "Straw man.",
+      "gold_answers": [
+        "Loaded language",
+        "Name calling or labeling",
+        "Repetition",
+        "Exaggeration or minimization",
+        "Doubt",
+        "Appeal to fear/prejudice",
+        "Flag-waving",
+        "Causal oversimplification",
+        "Slogans",
+        "Appeal to authority",
+        "Black-and-white fallacy, dictatorship",
+        "Thought-terminating cliché",
+        "Whataboutism",
+        "Reductio ad Hitlerum",
+        "Red herring",
+        "Bandwagon",
+        "Obfuscation, intentional vagueness, confusion",
+        "Straw man",
+        "1. Loaded language",
+        "2. Name calling or labeling",
+        "3. Repetition",
+        "4. Exaggeration or minimization",
+        "5. Doubt",
+        "6. Appeal to fear/prejudice",
+        "7. Flag-waving",
+        "8. Causal oversimplification",
+        "9. Slogans",
+        "10. Appeal to authority",
+        "11. Black-and-white fallacy, dictatorship",
+        "12. Thought-terminating cliché",
+        "13. Whataboutism",
+        "14. Reductio ad Hitlerum",
+        "15. Red herring",
+        "16. Bandwagon",
+        "17. Obfuscation, intentional vagueness, confusion",
+        "18. Straw man"
+      ],
+      "answer_f1": 1.0,
+      "retrieval_recall": 0.12921348314606743,
+      "top_chunks": [
+        {
+          "chunk_id": "1910.09982-1ae35000b5ad:0025",
+          "score": 4.649092197418213,
+          "text_preview": "e n t a n d , t h e r e f o r e , i t d o e s n o t r e a l l y s u p p o r t t h e c o n c l u s i o n .## Propaganda Techniques ::: 18. Straw man.\n\nW h e n a n o p p o n e n t ' s p r o p o s i t i o n i s s u b s t i t u t e d w i t h a s i m i l a r o n e w h i c h i s t h e n r e f u t e d i n "
+        },
+        {
+          "chunk_id": "1910.09982-1ae35000b5ad:0024",
+          "score": 4.0609025955200195,
+          "text_preview": "l s e i s t a k i n g t h e s a m e a c t i o n ” B I B R E F 1 5 .\n\n## Propaganda Techniques ::: 17. Obfuscation, intentional vagueness, confusion.\n\nU s i n g d e l i b e r a t e l y u n c l e a r w o r d s , t o l e t t h e a u d i e n c e h a v e i t s o w n i n t e r p r e t a t i o n B I B R E "
+        }
+      ]
+    },
+    {
+      "question_id": "c37f65c9f0d543a35c784263b79236ccf1c44fac",
+      "doc_id": "1806.00738",
+      "question": "What model is used to encode the images?",
+      "answerable": true,
+      "confidence": 0.0237,
+      "raw_prediction": "LSTM",
+      "gold_answers": [
+        "a Convolutional Neural Network (CNN)",
+        "LSTM"
+      ],
+      "answer_f1": 1.0,
+      "retrieval_recall": 0.45054945054945056,
+      "top_chunks": [
+        {
+          "chunk_id": "1806.00738-6913d2b23c44:0000",
+          "score": 5.126494407653809,
+          "text_preview": "Contextualize, Show and Tell: A Neural Visual Storyteller\n\nWe present a neural model for generating short stories from image sequences, which extends the image description model by Vinyals et al. (Vinyals et al., 2015). This extension relies on an encoder LSTM to compute a context vector of each sto"
+        },
+        {
+          "chunk_id": "1806.00738-6913d2b23c44:0011",
+          "score": -6.570145130157471,
+          "text_preview": "l o w i n g , w e d e s c r i b e h o w w e e x t e n d e d t h i s m o d e l f o r t h e v i s u a l s t o r y t e l l i n g t a s k .\n.## Encoder\n\nT h e m o d e l ' s f i r s t c o m p o n e n t i s a R e c u r r e n t N e u r a l N e t w o r k ( R N N ) , m o r e p r e c i s e l y a n L S T M t h"
+        }
+      ]
+    },
+    {
+      "question_id": "dd6b378d89c05058e8f49e48fd48f5c458ea2ebc",
+      "doc_id": "2003.13032",
+      "question": "What baseline systems are proposed?",
+      "answerable": true,
+      "confidence": 0.04105,
+      "raw_prediction": "Conditional Random Fields",
+      "gold_answers": [
+        "Conditional Random Fields",
+        "BiLSTM-CRF",
+        "Multi-Task Learning",
+        "BioBERT"
+      ],
+      "answer_f1": 1.0,
+      "retrieval_recall": 0.09803921568627451,
+      "top_chunks": [
+        {
+          "chunk_id": "2003.13032-6b7503d2222b:0002",
+          "score": -0.33690840005874634,
+          "text_preview": "tionally, we present four strong baseline systems for the detection of medical entities made available through the annotated dataset.## Introduction\n\nT h e a u t o m a t i c p r o c e s s i n g o f m e d i c a l t e x t s a n d d o c u m e n t s p l a y s a n i n c r e a s i n g l y i m p o r t a n "
+        },
+        {
+          "chunk_id": "2003.13032-6b7503d2222b:0031",
+          "score": -1.8324470520019531,
+          "text_preview": "e n t h e p r e s e n t e d s y s t e m s .\n. ## Baseline systems for Named Entity Recognition in medical case reports ::: Conditional Random Fields\n\nC o n d i t i o n a l R a n d o m F i e l d s ( C R F ) B I B R E F 1 0 a r e a s t a n d a r d a p p r o a c h w h e n d e a l i n g w i t h s e q u "
+        }
+      ]
+    },
+    {
+      "question_id": "d1ec42b2b5a3c956ff528543636e024bfde5e5ba",
+      "doc_id": "1909.03582",
+      "question": "Which baselines are used for evaluation?",
+      "answerable": true,
+      "confidence": 0.01593,
+      "raw_prediction": "Pointer-Gen",
+      "gold_answers": [
+        "Pointer-Gen",
+        "Pointer-Gen+Pos",
+        "Pointer-Gen+Same-FT",
+        "Pointer-Gen+Pos-FT",
+        "Pointer-Gen+RL-ROUGE",
+        "Pointer-Gen+RL-SEN"
+      ],
+      "answer_f1": 1.0,
+      "retrieval_recall": 0.42,
+      "top_chunks": [
+        {
+          "chunk_id": "1909.03582-2a8e14f3369c:0001",
+          "score": -3.4541234970092773,
+          "text_preview": "rd for a reinforcement learner. However, maximizing the noisy sensationalism reward will generate unnatural phrases instead of sensational headlines. To effectively leverage this noisy reward, we propose a novel loss function, Auto-tuned Reinforcement Learning (ARL), to dynamically balance reinforce"
+        },
+        {
+          "chunk_id": "1909.03582-2a8e14f3369c:0061",
+          "score": -6.4868245124816895,
+          "text_preview": "s .## Sensational Headline Generation ::: Evaluation Metrics\n\nW e b r i e f l y d e s c r i b e t h e e v a l u a t i o n m e t r i c s b e l o w .\n\nR O U G E : R O U G E i s a c o m m o n l y u s e d e v a l u a t i o n m e t r i c f o r s u m m a r i z a t i o n . I t m e a s u r e s t h e N - g r"
+        }
+      ]
+    },
+    {
+      "question_id": "e807d347742b2799bc347c0eff19b4c270449fee",
+      "doc_id": "2002.01984",
+      "question": "What dataset did they use?",
+      "answerable": true,
+      "confidence": 0.00924,
+      "raw_prediction": "BioAsq",
+      "gold_answers": [
+        "BioASQ  dataset",
+        "A dataset provided by BioASQ consisting of questions, gold standard documents, snippets, concepts  and ideal and ideal answers."
+      ],
+      "answer_f1": 0.6666666666666666,
+      "retrieval_recall": 0.21428571428571427,
+      "top_chunks": [
+        {
+          "chunk_id": "2002.01984-54af2419087d:0070",
+          "score": -7.108272075653076,
+          "text_preview": "d b e t t e r r e s u l t s .\n. ## Our Systems and Their Performance on Factoid Questions ::: Impact of Training using BioAsq data (slightly negative)T r a i n i n g o n B i o A s q d a t a i n o u r e n t r y i n B a t c h 1 a n d B a t c h 2 u n d e r t h e n a m e Q A 1 s h o w e d i t m i g h t "
+        },
+        {
+          "chunk_id": "2002.01984-54af2419087d:0069",
+          "score": -8.636816024780273,
+          "text_preview": "r d a t a s e t s , t h e n p e r h a p s t h e n e u r a l n e t w o r k t e c h n i q u e s t h e y w i l l y i e l d b e t t e r r e s u l t s .\n. ## Our Systems and Their Performance on Factoid Questions ::: Impact of Training using BioAsq data (slightly negative)"
+        }
+      ]
+    },
+    {
+      "question_id": "99e78c390932594bd833be0f5c890af5c605d808",
+      "doc_id": "1912.04961",
+      "question": "What is the baseline?",
+      "answerable": true,
+      "confidence": 0.00725,
+      "raw_prediction": "a QA approach",
+      "gold_answers": [
+        "QA PGNet",
+        "Multi-decoder QA PGNet with lookup table embedding",
+        "QA PGNet and Multi-decoder QA PGNet"
+      ],
+      "answer_f1": 0.5,
+      "retrieval_recall": 0.5238095238095238,
+      "top_chunks": [
+        {
+          "chunk_id": "1912.04961-eedad66970a6:0001",
+          "score": -5.635475158691406,
+          "text_preview": "rsations for the task. Clinical conversation corpora are costly to create, difficult to handle (because of data privacy concerns), and thus `scarce'. We address this data scarcity challenge through data augmentation methods, using publicly available embeddings and pretrain part of the network on a r"
+        },
+        {
+          "chunk_id": "1912.04961-eedad66970a6:0000",
+          "score": -6.865543842315674,
+          "text_preview": "Medication Regimen Extraction From Clinical Conversations\n\nExtracting relevant information from clinical conversations and providing it to doctors and patients might help in addressing doctor burnout and patient forgetfulness. In this paper, we focus on extracting the Medication Regimen (dosage and "
+        }
+      ]
+    },
+    {
+      "question_id": "43eecc576348411b0634611c81589f618cd4fddf",
+      "doc_id": "1908.07195",
+      "question": "What GAN models were used as baselines to compare against?",
+      "answerable": true,
+      "confidence": 0.06137,
+      "raw_prediction": "RAML and MaliGAN",
+      "gold_answers": [
+        "MLE",
+        "SeqGAN",
+        "LeakGAN",
+        "MaliGAN",
+        "IRL",
+        "RAML",
+        "DialogGAN",
+        "DPGAN"
+      ],
+      "answer_f1": 0.5,
+      "retrieval_recall": 0.33663366336633666,
+      "top_chunks": [
+        {
+          "chunk_id": "1908.07195-9ec56b04c047:0001",
+          "score": -2.410099744796753,
+          "text_preview": "Most of the existing generative adversarial networks (GAN) for text generation suffer from the instability of reinforcement learning training algorithms such as policy gradient, leading to unstable performance. To tackle this problem, we propose a novel framework called Adversarial Reward Augmented "
+        },
+        {
+          "chunk_id": "1908.07195-9ec56b04c047:0002",
+          "score": -4.023487091064453,
+          "text_preview": "ad of policy gradient. Experiments show that our model can outperform state-of-the-art text GANs with a more stable training process.## Introduction\n\nN a t u r a l t e x t g e n e r a t i o n , a s a k e y t a s k i n N L P , h a s b e e n a d v a n c e d s u b s t a n t i a l l y t h a n k s t o t "
+        }
+      ]
+    },
+    {
+      "question_id": "ae7c93646aa5f3206cd759904965b4d484d12f83",
+      "doc_id": "1909.03582",
+      "question": "What is this method improvement over the best performing state-of-the-art?",
+      "answerable": true,
+      "confidence": 0.06626,
+      "raw_prediction": "Pointer-Gen baseline",
+      "gold_answers": [
+        "absolute improvement of 18.2% over the Pointer-Gen baseline"
+      ],
+      "answer_f1": 0.5,
+      "retrieval_recall": 0.35514018691588783,
+      "top_chunks": [
+        {
+          "chunk_id": "1909.03582-2a8e14f3369c:0036",
+          "score": -10.956843376159668,
+          "text_preview": "r e w a r d , a n d p r o p o s e A R L t o a d d r e s s t h i s i s s u e .## Sensational Headline Generation ::: Training Methods ::: MLE and RL\n\nA h e a d l i n e g e n e r a t i o n m o d e l c a n b e t r a i n e d w i t h M L E , R L o r a c o m b i n a t i o n o f M L E a n d R L . M L E t r"
+        },
+        {
+          "chunk_id": "1909.03582-2a8e14f3369c:0000",
+          "score": -11.078113555908203,
+          "text_preview": "Clickbait? Sensational Headline Generation with Auto-tuned Reinforcement Learning\n\nSensational headlines are headlines that capture people's attention and generate reader interest. Conventional abstractive headline generation methods, unlike human writers, do not optimize for maximal reader attentio"
+        }
+      ]
+    }
+  ],
+  "lowest_retrieval_recall_answerable": [
+    {
+      "question_id": "55c8f7acbfd4f5cde634aaecd775b3bb32e9ffa3",
+      "doc_id": "1708.01464",
+      "question": "what evaluation metrics were used?",
+      "answerable": true,
+      "confidence": 0.00034,
+      "raw_prediction": "f o r a t o t a l o f 2 2 9 l a n g u a g e s .",
+      "gold_answers": [
+        "Phoneme Error Rate (PER)",
+        "Word Error Rate (WER)",
+        "Word Error Rate 100 (WER 100)",
+        "PER",
+        "WER",
+        "WER 100"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1708.01464-36089e4e3445:0039",
+          "score": -7.360842704772949,
+          "text_preview": "m a n d h a d n e g l i g i b l e p e r f o r m a n c e e f f e c t s , i t w a s n e c e s s a r y t o c o m p u t e o u r e r r o r m e t r i c s .## EvaluationW e u s e t h e f o l l o w i n g t h r e e e v a l u a t i o n m e t r i c s :\n\nP h o n e m e E r r o r R a t e ( P E R ) i s t h e L e v"
+        },
+        {
+          "chunk_id": "1708.01464-36089e4e3445:0038",
+          "score": -8.764366149902344,
+          "text_preview": "i d e d c l e a n e d t r a n s c r i p t i o n s i n o r d e r t o e a s e c o m p a r i s o n t o p r e v i o u s r e s u l t s .\n.## Experiments\n\nW e p r e s e n t e x p e r i m e n t s w i t h t w o v e r s i o n s o f o u r s e q u e n c e - t o - s e q u e n c e m o d e l . L a n g I D p r e p"
+        }
+      ]
+    },
+    {
+      "question_id": "133eb4aa4394758be5f41744c60c99901b2bc01c",
+      "doc_id": "2001.03131",
+      "question": "Do they perform error analysis?",
+      "answerable": true,
+      "confidence": 0.14598,
+      "raw_prediction": "RKS with fastetxt achieved competing results",
+      "gold_answers": [
+        "no"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "2001.03131-95d56e409ffb:0000",
+          "score": -8.90462875366211,
+          "text_preview": "Offensive Language Detection: A Comparative Analysis\n\nOffensive behaviour has become pervasive in the Internet community. Individuals take the advantage of anonymity in the cyber world and indulge in offensive communications which they may not consider in the real life. Governments, online communiti"
+        },
+        {
+          "chunk_id": "2001.03131-95d56e409ffb:0002",
+          "score": -8.977205276489258,
+          "text_preview": "bserved that RKS with fastetxt achieved competing results. The evaluation measures used are accuracy, precision, recall, f1-score.\n. ## Introduction\n\nI n t h i s d i g i t a l e r a , o n l i n e d i s c u s s i o n s a n d i n t e r a c t i o n s h a s b e c o m e a v i t a l p a r t o f d a i l y "
+        }
+      ]
+    },
+    {
+      "question_id": "8df35c24af9efc3348d3b8d746df116480dfe661",
+      "doc_id": "2003.13032",
+      "question": "Do they experiment with other tasks?",
+      "answerable": true,
+      "confidence": 0.0,
+      "raw_prediction": "",
+      "gold_answers": [
+        "no"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "2003.13032-6b7503d2222b:0009",
+          "score": -8.893627166748047,
+          "text_preview": "i e w i s a v a i l a b l e i n T a b l e T A B R E F 3 .\n. ## A Corpus of Medical Case Reports with Medical Entity Annotation ::: Annotation tasks\n\nC a s e r e p o r t s a r e s t a n d a r d i z e d i n t h e C A R E g u i d e l i n e s B I B R E F 5 .T h e y r e p r e s e n t a d e t a i l e d d "
+        },
+        {
+          "chunk_id": "2003.13032-6b7503d2222b:0001",
+          "score": -9.195173263549805,
+          "text_preview": "We present a new corpus comprising annotations of medical entities in case reports, originating from PubMed Central's open access library. In the case reports, we annotate cases, conditions, findings, factors and negation modifiers. Moreover, where applicable, we annotate relations between these ent"
+        }
+      ]
+    },
+    {
+      "question_id": "2c6b50877133a499502feb79a682f4023ddab63e",
+      "doc_id": "1810.04428",
+      "question": "what language does this paper focus on?",
+      "answerable": true,
+      "confidence": 0.0,
+      "raw_prediction": "",
+      "gold_answers": [
+        "English",
+        "Simple English"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1810.04428-bf762b2e784f:0036",
+          "score": -7.331645488739014,
+          "text_preview": "s o m e w h a t m o r e d i f f i c u l t ( - 1 ) , a n d m u c h m o r e d i f f i c u l t ( - 2 ) t h a n t h e r e f e r e n c e s e n t e n c e .M e t h o d s .W e u s e O p e n N M T B I B R E F 2 4 a s t h e i m p l e m e n t a t i o n o f t h e N M T s y s t e m f o r a l l e x p e r i m e n "
+        },
+        {
+          "chunk_id": "1810.04428-bf762b2e784f:0016",
+          "score": -7.398660182952881,
+          "text_preview": "o p o s e d b y t r e e t r a n s f o r m a t i o n b a s e d o n s t a t i s t i c a l m a c h i n e t r a n s l a t i o n ( S M T ) B I B R E F 3 . W o o d s e n d a n d L a p a t a B I B R E F 1 7 p r e s e n t e d a d a t a - d r i v e n m o d e l b a s e d o n a q u a s i - s y n c h r o n o u "
+        }
+      ]
+    },
+    {
+      "question_id": "a69a59b6c0ab27bcee1a780d6867df21e30aec08",
+      "doc_id": "1910.14599",
+      "question": "Do they compare human-level performance to model performance for their dataset?",
+      "answerable": true,
+      "confidence": 0.01499,
+      "raw_prediction": "training models on this new dataset leads to state-of-the-art performance on a variety of popular NLI benchmarks",
+      "gold_answers": [
+        "no"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1910.14599-43c7a340917d:0000",
+          "score": 0.25607991218566895,
+          "text_preview": "Adversarial NLI: A New Benchmark for Natural Language Understanding\n\nWe introduce a new large-scale NLI benchmark dataset, collected via an iterative, adversarial human-and-model-in-the-loop procedure. We show that training models on this new dataset leads to state-of-the-art performance on a variet"
+        },
+        {
+          "chunk_id": "1910.14599-43c7a340917d:0049",
+          "score": -4.1648664474487305,
+          "text_preview": ") s e t .I n w h a t f o l l o w s , w e b r i e f l y d i s c u s s o u r o b s e r v a t i o n s .\n. ## Results ::: Base model performance is low.\n\nN o t i c e t h a t t h e b a s e m o d e l f o r e a c h r o u n d p e r f o r m s v e r y p o o r l y o n t h a t r o u n d ' s t e s t s e t . T h "
+        }
+      ]
+    },
+    {
+      "question_id": "49764eee7fb523a6a28375cc699f5e0220b81766",
+      "doc_id": "1908.05441",
+      "question": "Did they use a crowdsourcing platform?",
+      "answerable": true,
+      "confidence": 0.00054,
+      "raw_prediction": "e b y + 1 . 7 %",
+      "gold_answers": [
+        "no"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1908.05441-d679b9ed0e8e:0068",
+          "score": -11.11896800994873,
+          "text_preview": "o m p a r e d t o a b a s e l i n e m o d e l t h a t d o e s n o t c o n t a i n q u e s t i o n c l a s s i f i c a t i o n i n f o r m a t i o n . A s p r e d i c t e d b y t h e e r r o r a n a l y s i s , w h i l e a m o d e l t r a i n e d w i t h q u e s t i o n a n d a n s w e r c a n d i d "
+        },
+        {
+          "chunk_id": "1908.05441-d679b9ed0e8e:0041",
+          "score": -11.144548416137695,
+          "text_preview": "n g b y d u p l i c a t i n g q u e s t i o n t e x t , a n d a s s i g n i n g e a c h i n s t a n c e o n e o f t h e m u l t i p l e l a b e l s .E v a l u a t i o n f o l l o w s t h e s t a n d a r d p r o c e d u r e w h e r e w e g e n e r a t e a l i s t o f r a n k e d c l a s s p r e d i c"
+        }
+      ]
+    },
+    {
+      "question_id": "9af3142630b350c93875441e1e1767312df76d17",
+      "doc_id": "1703.04001",
+      "question": "Do the answered questions measure for the usefulness of the answer?",
+      "answerable": true,
+      "confidence": 0.95833,
+      "raw_prediction": "the way users use language while writing the question text can be a very effective means to characterize answerability",
+      "gold_answers": [
+        "no"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1703.04001-10ad76af420d:0000",
+          "score": -0.8041521310806274,
+          "text_preview": "Language Use Matters: Analysis of the Linguistic Structure of Question Texts Can Characterize Answerability in Quora\n\nQuora is one of the most popular community Q&A sites of recent times. However, many question posts on this Q&A site often do not get answered. In this paper, we quantify various ling"
+        },
+        {
+          "chunk_id": "1703.04001-10ad76af420d:0001",
+          "score": -9.13296890258789,
+          "text_preview": "unanswered for a specific time period t will eventually be answered or not and achieve an accuracy of 76.26% (t = 1 month) and 68.33% (t = 3 months). Notably, features representing the language use patterns of the users are most discriminative and alone account for an accuracy of 74.18%.We also comp"
+        }
+      ]
+    },
+    {
+      "question_id": "876700622bd6811d903e65314ac75971bbe23dcc",
+      "doc_id": "1707.03569",
+      "question": "What dataset did they use?",
+      "answerable": true,
+      "confidence": 0.0,
+      "raw_prediction": "",
+      "gold_answers": [
+        "high-quality datasets  from SemEval-2016 “Sentiment Analysis in Twitter” task",
+        "SemEval-2016 “Sentiment Analysis in Twitter”"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1707.03569-7b33be445c96:0056",
+          "score": -9.777359008789062,
+          "text_preview": "t i o n s l e a d s t o t h e g a i n s o f t h e b i L S T M n e t w o r k , i n t h e m u l t i t a s k a n d s i n g l e t a s k s e t t i n g .\n.S i m i l a r o b s e r v a t i o n s c a n b e d r a w n f r o m F i g u r e F I G R E F 1 0 t h a t p r e s e n t s t h e I N L I N E F O R M 0 s c o"
+        },
+        {
+          "chunk_id": "1707.03569-7b33be445c96:0049",
+          "score": -9.854148864746094,
+          "text_preview": "p r e s e n t a t i o n s . T h e u p p e r p a r t o f t h e T a b l e s u m m a r i z e s t h e p e r f o r m a n c e o f t h e b a s e l i n e s . T h e e n t r y “ B a l i k a s e t a l .” s t a n d s f o r t h e w i n n i n g s y s t e m o f t h e 2 0 1 6 e d i t i o n o f t h e c h a l l e n g"
+        }
+      ]
+    },
+    {
+      "question_id": "787c4d4628eac00dbceb1c96020bff0090edca46",
+      "doc_id": "2003.08385",
+      "question": "What annotations are present in dataset?",
+      "answerable": true,
+      "confidence": 0.02005,
+      "raw_prediction": "Language Identification",
+      "gold_answers": [
+        "answer each question with either `yes', `rather yes', `rather no', or `no'.",
+        "can supplement each answer with a comment of at most 500 characters"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "2003.08385-20f2078b2d6e:0026",
+          "score": -3.8704349994659424,
+          "text_preview": "f u r t h e r p r e p r o c e s s t h e t e x t o f t h e c o m m e n t s .\n\n## The x-stance Dataset ::: Data Collection ::: Language Identification\n\nA s t h e A P I d o e s n o t p r o v i d e t h e l a n g u a g e o f c o m m e n t s , w e e m p l o y e d a l a n g u a g e i d e n t i f i e r t o "
+        },
+        {
+          "chunk_id": "2003.08385-20f2078b2d6e:0042",
+          "score": -4.019744873046875,
+          "text_preview": "w i t h i n o t h e r t o p i c s ( w i t h a ` f a v o r ' r a t i o o f 5 0 . 0 % ) .## The x-stance Dataset ::: Analysis ::: Linguistic PropertiesN o t e v e r y q u e s t i o n i s u n i q u e ; s o m e q u e s t i o n s a r e p a r a p h r a s e s d e s c r i b i n g t h e s a m e p o l i t i c"
+        }
+      ]
+    },
+    {
+      "question_id": "0a01341ddca3fe4c8727be7cf5841091c6ca3d0b",
+      "doc_id": "1901.10133",
+      "question": "Do they release code?",
+      "answerable": true,
+      "confidence": 0.0,
+      "raw_prediction": "",
+      "gold_answers": [
+        "no"
+      ],
+      "answer_f1": 0.0,
+      "retrieval_recall": 0.0,
+      "top_chunks": [
+        {
+          "chunk_id": "1901.10133-585ff5446712:0004",
+          "score": -9.467727661132812,
+          "text_preview": "g t o t h e s a m e c l u s t e r . K e y w o r d s a r e i d e n t i f i e d a n d c l u s t e r s a r e f o r m e d f o r e a c h k e y w o r d .\n.W e u s e T e x t R a n k a l g o r i t h m B I B R E F 0 t o e x t r a c t t h e k e y w o r d s f r o m a t e x t d o c u m e n t . T e x t R a n k i"
+        },
+        {
+          "chunk_id": "1901.10133-585ff5446712:0022",
+          "score": -9.490693092346191,
+          "text_preview": "p u t t o o u r m o d e l a n d t h e o u t p u t d o c u m e n t i s c o m p a r e d a g a i n s t t h e o r i g i n a l i n p u t d o c u m e n t .A l s o , w e c o m p a r e o u r r e s u l t s w i t h t h e b a s e l i n e b e i n g t h e r e s u l t s w h e n w e c o n s i d e r o n l y t h e s"
+        }
+      ]
+    }
+  ]
+}

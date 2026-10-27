@@ -1,0 +1,38 @@
+{
+  "schema": "vistaar-full-qasper-label-sensitivity-v1",
+  "definition_used": "answerable if any annotation is answerable",
+  "mixed_annotations_full": 75,
+  "mixed_annotations_test": 28,
+  "locked_threshold": 0.1,
+  "current_labels": {
+    "n": 403,
+    "answerable": 383,
+    "unanswerable": 20,
+    "auc": 0.6636422976501305,
+    "balanced_accuracy": 0.5686031331592689,
+    "coverage": 0.2803970223325062,
+    "answered_unanswerable": 3,
+    "answered_answerable": 110
+  },
+  "exclude_mixed": {
+    "n": 375,
+    "answerable": 355,
+    "unanswerable": 20,
+    "auc": 0.6637323943661971,
+    "balanced_accuracy": 0.5700704225352112,
+    "coverage": 0.2826666666666667,
+    "answered_unanswerable": 3,
+    "answered_answerable": 103
+  },
+  "require_all_annotators_answerable": {
+    "n": 403,
+    "answerable": 355,
+    "unanswerable": 48,
+    "auc": 0.5807805164319249,
+    "balanced_accuracy": 0.5409037558685446,
+    "coverage": 0.2803970223325062,
+    "answered_unanswerable": 10,
+    "answered_answerable": 103
+  },
+  "interpretation": "Sensitivity only; the predeclared threshold was not retuned."
+}
