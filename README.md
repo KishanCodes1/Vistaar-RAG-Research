@@ -117,17 +117,35 @@ curl -sL "https://huggingface.co/api/datasets/allenai/qasper/parquet/qasper/vali
 NATURAL=results/runs/natural-clean
 ENRICHED=results/runs/negative-enriched-clean
 
-python -m eval.run_eval --papers 40 --workers 2 --out "$NATURAL"
+python -m eval.run_eval --dataset-partition validation \
+  --papers 40 --workers 2 --out "$NATURAL"
 python -m eval.sweep --records "$NATURAL/records.jsonl" --config E \
   --out "$NATURAL"
 
-python -m eval.run_eval --papers 281 --only E --balanced --workers 2 \
+python -m eval.run_eval --dataset-partition validation \
+  --papers 281 --only E --balanced --workers 2 \
   --out "$ENRICHED"
 python -m eval.sweep --records "$ENRICHED/records.jsonl" --config E \
   --out "$ENRICHED"
 python -m eval.threshold_protocol --records "$ENRICHED/records.jsonl" \
   --config E --out "$ENRICHED/threshold_protocol"
 ```
+
+An explicit local-only shadow mode collects versioned confidence diagnostics in
+a dedicated cache/output namespace. Keep smoke runs bounded unless a larger
+inference budget has been approved:
+
+```bash
+python -m eval.run_eval --shadow --dataset-partition validation \
+  --papers 1 --limit 2 --only E --workers 1
+```
+
+Shadow mode rejects hosted readers, diagnostic-free cache rows, the ordinary
+evaluation cache root, and nonempty output directories. Its development and
+partition protocol is `docs/MILESTONE5B_SHADOW_PROTOCOL.md`.
+The protocol freezes settings for a future calibrator experiment; preprocessing,
+fitting, repeated-CV model selection, and final refitting are not implemented or
+executed in this checkpoint.
 
 Every evaluation has an isolated index/cache fingerprint and refuses to replace
 a non-empty output directory. Outputs include:

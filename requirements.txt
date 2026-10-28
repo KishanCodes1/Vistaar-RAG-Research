@@ -21,6 +21,9 @@ transformers==5.21.0
 pypdf==6.21.3
 pyarrow==26.0.0
 
+# Dependency pinned for the future shadow calibrator protocol
+scikit-learn==1.9.1
+
 # Tests
 pytest==9.0.1
 httpx==0.28.1

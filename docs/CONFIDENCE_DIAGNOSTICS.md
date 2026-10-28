@@ -89,7 +89,7 @@ Candidate records contain:
 | Field | Meaning |
 |---|---|
 | `rank` | Rank within this stage, starting at one. |
-| `chunk_id`, `doc_id`, `page`, `section` | Deterministic chunk provenance. |
+| `chunk_id`, `doc_id`, `page`, `section` | Deterministic chunk provenance. `page` is a positive, one-based integer; no negative sentinel is used. |
 | `source`, `score` | Stage label and native stage score. |
 | `dense_rank`, `bm25_rank`, `fused_rank` | Upstream rank where known; otherwise null. |
 

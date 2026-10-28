@@ -39,7 +39,7 @@ jobs:
       - name: Fetch evaluation data
         run: make data
       - name: Evaluate
-        run: python -m eval.run_eval --papers 8 --workers 2 --out ci-results
+        run: python -m eval.run_eval --dataset-partition validation --papers 8 --workers 2 --out ci-results
       - name: Check quality gate
         run: |
           python - <<'PY'

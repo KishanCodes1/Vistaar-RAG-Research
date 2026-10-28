@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -95,9 +96,15 @@ class CacheLoad:
 class EvaluationCache:
     """Run-scoped JSONL cache that fails closed on any fingerprint mismatch."""
 
-    def __init__(self, root: str | Path, run_fingerprint: str):
+    def __init__(
+        self,
+        root: str | Path,
+        run_fingerprint: str,
+        record_validator: Callable[[dict], bool] | None = None,
+    ):
         self.root = Path(root)
         self.run_fingerprint = run_fingerprint
+        self.record_validator = record_validator
 
     @property
     def run_dir(self) -> Path:
@@ -138,6 +145,11 @@ class EvaluationCache:
                 and expected_item is not None
                 and metadata.get("item_fingerprint") == expected_item
             )
+            if valid and self.record_validator is not None:
+                try:
+                    valid = bool(self.record_validator(record))
+                except (KeyError, TypeError, ValueError):
+                    valid = False
             if not valid:
                 rejected += 1
                 continue
@@ -156,6 +168,8 @@ class EvaluationCache:
         item_fingerprint: str,
         record: dict,
     ) -> dict:
+        if self.record_validator is not None and not self.record_validator(record):
+            raise ValueError("record does not satisfy this cache's schema contract")
         cached = dict(record)
         cached["_cache"] = {
             "schema": SCHEMA_VERSION,

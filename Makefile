@@ -15,7 +15,7 @@ data:
 	  -o data/raw/qasper_validation.parquet
 
 eval: data
-	./.venv/bin/python -m eval.run_eval --papers 40 --workers 2
+	./.venv/bin/python -m eval.run_eval --dataset-partition validation --papers 40 --workers 2
 
 sweep:
 	./.venv/bin/python -m eval.sweep --config E

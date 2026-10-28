@@ -1,7 +1,7 @@
 """Run the evaluation matrix and emit results.
 
 Usage:
-    python -m eval.run_eval --papers 40 --limit 0
+    python -m eval.run_eval --dataset-partition validation --papers 40 --limit 0
 """
 from __future__ import annotations
 
@@ -42,6 +42,14 @@ from .provenance import (
     stable_fingerprint,
     write_json_atomic,
 )
+from .shadow import (
+    SHADOW_CACHE_ROOT,
+    SHADOW_OUTPUT_ROOT,
+    diagnostic_record_is_complete,
+    shadow_run_metadata,
+    validate_shadow_cache_root,
+)
+from .shadow_protocol import PARTITION_ROLES, validate_partition_role
 
 CONFIGS = [
     RetrievalConfig(name="A: dense", use_bm25=False, use_rerank=False, use_abstention=False),
@@ -54,6 +62,7 @@ CONFIGS = [
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DATASET = Path("data/raw/qasper_validation.parquet")
 DEFAULT_CACHE_ROOT = Path("results/cache/eval")
+DEFAULT_OUTPUT_ROOT = Path("results/runs")
 RUN_SCHEMA = "vistaar-eval-run-v1"
 
 # The reader always receives this many passages, regardless of the retriever's
@@ -66,6 +75,8 @@ IMPLEMENTATION_FILES = (
     "eval/qasper.py",
     "eval/run_eval.py",
     "eval/provenance.py",
+    "eval/shadow.py",
+    "eval/shadow_protocol.py",
     "vistaar/config.py",
     "vistaar/diagnostics.py",
     "vistaar/generate.py",
@@ -77,7 +88,14 @@ IMPLEMENTATION_FILES = (
 
 
 def _package_versions() -> dict[str, str]:
-    packages = ("faiss-cpu", "numpy", "sentence-transformers", "torch", "transformers")
+    packages = (
+        "faiss-cpu",
+        "numpy",
+        "scikit-learn",
+        "sentence-transformers",
+        "torch",
+        "transformers",
+    )
     versions = {}
     for package in packages:
         try:
@@ -112,6 +130,8 @@ def build_run_payload(
     limit: int,
     negative_enriched: bool,
     workers: int,
+    dataset_partition: str,
+    shadow: bool = False,
 ) -> dict:
     """Return every deterministic input that can affect records or metrics."""
     item_fingerprints = {
@@ -135,10 +155,12 @@ def build_run_payload(
     implementation = {
         relative: hash_file(REPO_ROOT / relative) for relative in IMPLEMENTATION_FILES
     }
-    return {
-        "schema": RUN_SCHEMA,
+    partition_role = validate_partition_role(dataset_path, dataset_partition)
+    payload = {
+        "schema": shadow_run_metadata()["schema"] if shadow else RUN_SCHEMA,
         "dataset": {
-            "name": "qasper-validation",
+            "name": "qasper",
+            "partition_role": partition_role,
             "filename": dataset_path.name,
             "sha256": hash_file(dataset_path),
             "selection": {
@@ -204,14 +226,21 @@ def build_run_payload(
         "implementation": implementation,
         "packages": _package_versions(),
     }
+    if shadow:
+        payload["shadow"] = shadow_run_metadata()
+    return payload
 
 
-def _new_output_directory(requested: str, run_fingerprint: str) -> Path:
+def _new_output_directory(
+    requested: str,
+    run_fingerprint: str,
+    default_root: Path = DEFAULT_OUTPUT_ROOT,
+) -> Path:
     if requested:
         output = Path(requested)
     else:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        output = Path("results/runs") / f"{stamp}-{run_fingerprint[:12]}"
+        output = default_root / f"{stamp}-{run_fingerprint[:12]}"
     if output.exists() and any(output.iterdir()):
         raise SystemExit(
             f"Refusing to overwrite non-empty output directory {output}. "
@@ -234,19 +263,99 @@ def prepare_items(items: list[EvalItem]) -> tuple[list[EvalItem], int]:
     return kept, dropped
 
 
+def pending_items(items: list[EvalItem], records_by_id: dict[str, dict]) -> list[EvalItem]:
+    """Return items whose records were absent or rejected by cache validation."""
+    return [item for item in items if item.question_id not in records_by_id]
+
+
+def build_evaluation_record(
+    pipeline: RAGPipeline,
+    item: EvalItem,
+    config: RetrievalConfig,
+    *,
+    collect_diagnostics: bool,
+) -> dict:
+    """Evaluate one item, keeping diagnostics additive to legacy record fields."""
+    diagnostics = {} if collect_diagnostics else None
+    hits = pipeline.retrieve(
+        item.question,
+        namespace=item.doc_id,
+        config=config,
+        diagnostics=diagnostics,
+    )
+    answer = pipeline.answer(
+        item.question,
+        namespace=item.doc_id,
+        config=config,
+        hits=hits,
+        diagnostics=diagnostics,
+    )
+    record = {
+        "config": config.name,
+        "question_id": item.question_id,
+        "doc_id": item.doc_id,
+        "question": item.question,
+        "gold": item.gold,
+        "gold_answers": list(item.gold_answers),
+        "answerable": item.answerable,
+        "prediction": answer.answer,
+        "raw_prediction": (
+            answer.answer if answer.raw_answer is None else answer.raw_answer
+        ),
+        "abstained": answer.abstained,
+        "citations": [citation["text"] for citation in answer.citations],
+        "citation_details": list(answer.citations),
+        "retrieved": [hit.chunk.text for hit in hits],
+        "retrieved_chunks": [
+            {
+                "chunk_id": hit.chunk.chunk_id,
+                "doc_id": hit.chunk.doc_id,
+                "page": hit.chunk.page,
+                "section": hit.chunk.section,
+                "text": hit.chunk.text,
+                "score": hit.score,
+                "source": hit.source,
+            }
+            for hit in hits
+        ],
+        "scores": answer.scores,
+        "latency_s": answer.latency_s,
+        "model": answer.model,
+        "gold_evidence": item.gold_evidence,
+    }
+    if collect_diagnostics:
+        record["diagnostics"] = answer.diagnostics
+    return record
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default=str(DEFAULT_DATASET))
+    parser.add_argument(
+        "--dataset-partition",
+        required=True,
+        choices=PARTITION_ROLES,
+        help="explicit role recorded in the run manifest and fingerprint",
+    )
     parser.add_argument("--papers", type=int, default=40)
     parser.add_argument("--limit", type=int, default=0, help="cap questions for a smoke run")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument(
         "--out",
         default="",
-        help="new output directory; defaults to a timestamped results/runs directory",
+        help="new output directory; defaults to a timestamped workflow-specific directory",
     )
-    parser.add_argument("--cache-root", default=str(DEFAULT_CACHE_ROOT))
+    parser.add_argument(
+        "--cache-root",
+        default="",
+        help="cache root; shadow mode defaults to a dedicated namespace",
+    )
     parser.add_argument("--only", default="", help="run only configs whose label starts with this prefix")
+    parser.add_argument(
+        "--shadow",
+        action="store_true",
+        help="local-only diagnostic shadow run with required diagnostic records",
+    )
     parser.add_argument("--balanced", action="store_true",
                         help="negative-enriched stress slice: documents with an unanswerable question")
     args = parser.parse_args()
@@ -254,7 +363,23 @@ def main() -> None:
     if args.workers < 1:
         raise SystemExit("--workers must be at least 1")
     dataset_path = Path(args.dataset)
+    try:
+        dataset_partition = validate_partition_role(
+            dataset_path, args.dataset_partition
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     settings = Settings.from_env()
+    if args.shadow and settings.reader != "local":
+        raise SystemExit("--shadow is local-only and requires VISTAAR_READER=local")
+    cache_root = Path(args.cache_root) if args.cache_root else (
+        SHADOW_CACHE_ROOT if args.shadow else DEFAULT_CACHE_ROOT
+    )
+    if args.shadow:
+        try:
+            cache_root = validate_shadow_cache_root(cache_root, DEFAULT_CACHE_ROOT)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
     items = load_qasper(dataset_path, max_papers=args.papers)
     items, dropped = prepare_items(items)
 
@@ -289,11 +414,17 @@ def main() -> None:
         limit=args.limit,
         negative_enriched=args.balanced,
         workers=args.workers,
+        dataset_partition=dataset_partition,
+        shadow=args.shadow,
     )
     run_fingerprint = stable_fingerprint(run_payload)
-    cache = EvaluationCache(args.cache_root, run_fingerprint)
+    cache = EvaluationCache(
+        cache_root,
+        run_fingerprint,
+        record_validator=diagnostic_record_is_complete if args.shadow else None,
+    )
     base_manifest = {
-        "schema": RUN_SCHEMA,
+        "schema": run_payload["schema"],
         "run_fingerprint": run_fingerprint,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "fingerprinted_inputs": run_payload,
@@ -306,7 +437,11 @@ def main() -> None:
     else:
         write_json_atomic(cached_manifest_path, base_manifest)
 
-    out_dir = _new_output_directory(args.out, run_fingerprint)
+    out_dir = _new_output_directory(
+        args.out,
+        run_fingerprint,
+        SHADOW_OUTPUT_ROOT if args.shadow else DEFAULT_OUTPUT_ROOT,
+    )
     write_json_atomic(out_dir / "run_manifest.json", {**base_manifest, "status": "running"})
     isolated_settings = replace(settings, data_dir=cache.run_dir / "index")
     pipeline = RAGPipeline(isolated_settings)
@@ -370,61 +505,19 @@ def main() -> None:
         config_fp = config_fingerprint(config)
         loaded = cache.load(config.name, config_fp, item_fingerprints)
         records_by_id = dict(loaded.records)
-        todo = [item for item in items if item.question_id not in records_by_id]
+        todo = pending_items(items, records_by_id)
         print(
             f"\n[{config.name}] cached={len(items)-len(todo)} todo={len(todo)} "
             f"rejected={loaded.rejected} malformed={loaded.malformed}"
         )
 
         def work(item: EvalItem) -> dict:
-            diagnostics: dict = {}
-            hits = pipeline.retrieve(
-                item.question,
-                namespace=item.doc_id,
-                config=config,
-                diagnostics=diagnostics,
+            return build_evaluation_record(
+                pipeline,
+                item,
+                config,
+                collect_diagnostics=True,
             )
-            answer = pipeline.answer(
-                item.question,
-                namespace=item.doc_id,
-                config=config,
-                hits=hits,
-                diagnostics=diagnostics,
-            )
-            return {
-                "config": config.name,
-                "question_id": item.question_id,
-                "doc_id": item.doc_id,
-                "question": item.question,
-                "gold": item.gold,
-                "gold_answers": list(item.gold_answers),
-                "answerable": item.answerable,
-                "prediction": answer.answer,
-                "raw_prediction": (
-                    answer.answer if answer.raw_answer is None else answer.raw_answer
-                ),
-                "abstained": answer.abstained,
-                "citations": [c["text"] for c in answer.citations],
-                "citation_details": list(answer.citations),
-                "retrieved": [h.chunk.text for h in hits],
-                "retrieved_chunks": [
-                    {
-                        "chunk_id": hit.chunk.chunk_id,
-                        "doc_id": hit.chunk.doc_id,
-                        "page": hit.chunk.page,
-                        "section": hit.chunk.section,
-                        "text": hit.chunk.text,
-                        "score": hit.score,
-                        "source": hit.source,
-                    }
-                    for hit in hits
-                ],
-                "scores": answer.scores,
-                "latency_s": answer.latency_s,
-                "model": answer.model,
-                "gold_evidence": item.gold_evidence,
-                "diagnostics": answer.diagnostics,
-            }
 
         done = 0
         with ThreadPoolExecutor(max_workers=args.workers) as pool:

@@ -10,6 +10,9 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from eval.qasper import EvalItem
+from eval.run_eval import build_evaluation_record
+from eval.shadow import diagnostic_record_is_complete
 from vistaar.config import Settings
 from vistaar.diagnostics import CONFIDENCE_DIAGNOSTICS_SCHEMA
 from vistaar.index import Hit, Reranker
@@ -182,6 +185,46 @@ def test_instrumentation_preserves_ranking_answer_and_decision(monkeypatch):
     assert diagnostics["decision"]["triggered_reasons"] == [
         "below_configured_threshold"
     ]
+
+
+def test_shadow_record_is_additive_and_preserves_legacy_fields(monkeypatch):
+    pipeline = _pipeline(monkeypatch)
+    config = RetrievalConfig(
+        name="E: shadow fixture",
+        use_bm25=True,
+        use_rerank=True,
+        use_abstention=True,
+        top_k=2,
+        rerank_top_n=2,
+    )
+    item = EvalItem(
+        doc_id="paper",
+        question_id="fixture-question",
+        question="diagnostic evidence",
+        doc_text="fixture text",
+        doc_title="Fixture",
+        gold_answers=["diagnostic answer"],
+        gold_evidence=["diagnostic evidence passage"],
+        answerable=True,
+    )
+
+    plain = build_evaluation_record(
+        pipeline, item, config, collect_diagnostics=False
+    )
+    shadow = build_evaluation_record(
+        pipeline, item, config, collect_diagnostics=True
+    )
+    plain_business = {key: value for key, value in plain.items() if key != "latency_s"}
+    shadow_business = {
+        key: value
+        for key, value in shadow.items()
+        if key not in {"latency_s", "diagnostics"}
+    }
+
+    assert "diagnostics" not in plain
+    assert diagnostic_record_is_complete(shadow)
+    assert shadow_business == plain_business
+    assert pipeline._reader.collect_flags == [False, True]
 
 
 def test_diagnostics_are_deterministic_and_mark_unavailable_stages(monkeypatch):

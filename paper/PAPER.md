@@ -384,10 +384,12 @@ coverage, answered-unanswerable errors and uncertainty.
 ```bash
 pip install -r requirements.txt          # fully pinned
 make data                                # QASPER validation parquet
-python -m eval.run_eval --papers 40 --workers 2 --out <new-natural-dir>
+python -m eval.run_eval --dataset-partition validation \
+    --papers 40 --workers 2 --out <new-natural-dir>
 python -m eval.sweep --records <new-natural-dir>/records.jsonl \
     --config E --out <new-natural-dir>
-python -m eval.run_eval --papers 281 --only E --balanced --workers 2 \
+python -m eval.run_eval --dataset-partition validation \
+    --papers 281 --only E --balanced --workers 2 \
     --out <new-enriched-dir>
 python -m eval.threshold_protocol \
     --records <new-enriched-dir>/records.jsonl --config E \
