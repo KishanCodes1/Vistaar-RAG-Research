@@ -1,0 +1,27 @@
+# Engineering and Research Trade-offs
+
+These are trade-offs stated by project records or explicitly marked as reconstructed analysis. For decisions and failure chronology, see [decision log](DECISION_LOG.md), [challenge log](CHALLENGE_LOG.md), and [milestones](MILESTONES.md).
+
+| Choice | Benefit | Cost or limitation | Evidence and interview point |
+|---|---|---|---|
+| Per-session namespaces and locking | Prevents accidental cross-session mixing through one shared global index and protects concurrent store operations. | The caller supplies the namespace; there is no authentication or authorization, so namespaces are not secure tenant boundaries or durable tenant lifecycle. | `docs/AUDIT.md`; `vistaar/index.py`; `vistaar/api.py`. Explain isolation boundary and remaining auth work. |
+| Boundary-aware chunks with provenance | Keeps page/chunk references available for citations and avoids the audited arbitrary fixed-character split. | More metadata and chunking logic; citation correctness still depends on extraction and retrieval. No comparative chunk-size study is documented. | `vistaar/text.py`; `tests/test_core.py`. |
+| Local CPU extractive reader | Offline, controlled evaluation in the recorded environment; avoids hosted quota and MPS crash constraints. | Slower than an accelerated path and cannot generate abstractive answers; this likely depresses overlap-based F1 but does not excuse all errors. | `PROJECT_STATE.md`, `README.md`, `vistaar/reader.py`. |
+| Keep Gemini as an optional backend | Preserves a more fluent product option. | Quota-bound and unsuitable for the controlled reported run; no hosted evaluation supports a quality claim. | `PROJECT_STATE.md`, `vistaar/generate.py`. |
+| Hybrid dense + BM25 retrieval | Improves measured evidence recall over dense-only on QASPER. | Additional index and retrieval work; the reported evidence is single-domain QASPER. | `README.md`, `paper/PAPER.md`, `docs/FULL_QASPER_EVALUATION.md`. Ret-R 0.227 → 0.267 in the clean 40-paper comparison. |
+| General-domain cross-encoder reranking | Adds a learned ordering stage that could improve answer relevance. | In the clean 40-paper run it reduced Ret-R (0.267 → 0.245) without significant answer-F1 gain; full QASPER confirms the loss. The verified proximate mechanism is top-four evidence displacement. | `docs/FULL_QASPER_EVALUATION.md`, `docs/MILESTONE4_RESEARCH_PLAN.md`. MS MARCO/scientific-domain mismatch is plausible but unconfirmed. |
+| Confidence threshold rather than prompt-only abstention | Makes answer/abstain behavior measurable across operating points. | Threshold performance depends on representative calibration data; a threshold is not a calibrated probability. The held-out result is weak. | `docs/MILESTONE2_REPORT.md`, `paper/PAPER.md`; say “thresholded,” not “calibrated.” |
+| Document-disjoint calibration/test | Reduces leakage from questions about the same paper and allows a locked operating point. | Fewer independent papers and negatives widen uncertainty; observed balanced accuracy is compatible with chance. | `eval/threshold_protocol.py`, `docs/FULL_QASPER_EVALUATION.md`. |
+| Run-scoped fingerprinted caches | Reproducibility, safe cache reuse for matching inputs, and clean separation of evaluation runs. | More storage and recomputation after relevant changes; historical contaminated outputs cannot all be reconstructed exactly. | `docs/MILESTONE2_REPORT.md`, `eval/provenance.py`, `tests/test_eval_cache.py`. |
+| Token-vocabulary evidence overlap | Works despite character-spaced QASPER text where exact substring matching failed and de-spacing was lossy. | Does not capture paraphrase or entailment and can over-credit shared words. | `PROJECT_STATE.md`, `paper/PAPER.md`; no human/semantic judge is reported. |
+| Opt-in shadow diagnostics | Adds inference-time signals while preserving legacy record fields and ordinary call behavior in tested fixtures. | Extra state and storage in shadow runs; fixture equality is not full-distribution proof. | `docs/CONFIDENCE_DIAGNOSTICS.md`, `tests/test_confidence_diagnostics.py`. |
+| Freeze a future model protocol before fitting | Limits outcome-driven changes and separates training, calibration, and final evaluation. | The protocol itself creates no evidence; official data verification and calibrator implementation remain prerequisites. | `docs/MILESTONE5B_SHADOW_PROTOCOL.md`; explicitly distinguish protocol metadata from a trained model. |
+
+## Reconstructed considerations
+
+The following are analytical explanations useful for interviews, not claims that repository history records a formal options review:
+
+- Namespace isolation is a small architectural cost with a large reduction in accidental data exposure; it still needs an authentication layer before production tenancy claims.
+- CPU inference sacrifices throughput to avoid a known target-environment MPS failure and hosted quotas. A future benchmark should compare stable CPU and supported accelerators under pinned versions.
+- Reporting multiple metrics is more honest than selecting one favorable answer-quality statistic, but adds complexity. The interview explanation should center on what each metric measures and what it misses.
+- D-anchor is a constrained attempt to retain early RRF evidence while using reranking for remaining slots. It is a protocol/helper, not an established improvement; evaluation must test recall and answer quality together.
